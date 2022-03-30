@@ -1,5 +1,5 @@
 .header{
-    background-color: gray;
+    background-color: #0d6efd;
     color: white;
 }
 
@@ -50,6 +50,7 @@ border-left: 1px solid white;
     font-size: 1.2rem;
     font-weight: 500;
     cursor:default;
+    width: 7rem;
 }
 
 .time.line{
@@ -61,9 +62,6 @@ border-left: 1px solid white;
     border-top: 0;
 }
 
-.create-activity-line{
-    margin-bottom: 5rem;
-}
 
 .edit-icon{
     padding-right: 0.5rem;
@@ -71,8 +69,14 @@ border-left: 1px solid white;
 
 .resume-day-title{
     color: black;
-
+    margin-top: 1rem;
     font-size: 0.85rem;
 
 
 }
+
+.btn.ctrl{
+    width: 6rem;
+}
+
+
