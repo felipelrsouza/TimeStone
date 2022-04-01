@@ -13,14 +13,26 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
-use App\Http\Controllers\ActionController;
+use App\Http\Controllers\MainController;
+use App\Http\Controllers\ProjectController;
+use App\Http\Controllers\TagController;
 
-Route::get('/', [ActionController::class, 'index'] );
+Route::get('/', [MainController::class, 'index'] );
 
 Route::get('/projects', function () {
 
     return view('projects');
 });
+
+Route::get('/projects', [ProjectController::class, 'index'] );
+
+Route::post('/projects', [ProjectController::class, 'store']);
+
+
+Route::get('/tags', [TagController::class, 'index'] );
+
+Route::post('/tags', [TagController::class, 'store']);
+
 
 Route::get('/calendar', function () {
 
