@@ -1,0 +1,197 @@
+a{
+    padding: 0;
+    margin: 0;
+    color: inherit;
+    text-decoration: none;
+}
+
+a:hover{
+    color: #bac7da;
+}
+
+.header{
+    background-color: #43608b;
+    color: white;
+}
+
+.logo{
+    font-family: 'PT Sans', sans-serif;
+    font-weight: bold;
+    font-size: 1.75rem;
+    color: white;
+    padding: 0.5rem 0 0.5rem 0;
+    cursor:pointer;
+}
+
+.tools ul{
+
+    display: inline-block;
+    list-style-type: none;
+    margin: 0;
+    padding: 0;
+    border-left: 1px solid white;
+    border-right: 1px solid white;
+    cursor:pointer;
+}
+
+.tools li{
+    display: inline-block;
+    font-size: 1rem;
+    width: 5.5rem;
+    
+}
+
+.tools ul > li + li{
+
+border-left: 1px solid white;
+
+}
+
+.tools-i-title{
+    font-size: 0.8rem;
+    padding-left: 0.2rem;
+
+}
+
+.menu-item{
+    padding: 0.25rem 1rem 0.25rem 1rem;
+}
+
+.menu-item:hover{
+    background-color: #eaedf0;
+}
+
+.timer{
+    font-weight: 500;
+    font-size: 1.05rem;
+    cursor:default;
+    width: 7rem;   
+}
+
+.input-row{
+    color: black;
+    border-color: black;
+}
+
+.input-row:hover{
+    color: black;
+}
+
+.title-row{
+    border: 1px black solid;
+    border-right: 0px;
+    color: black;
+}
+
+.title-row:hover{
+    background-color: white;
+    color: black;
+    cursor: default;
+}
+
+.manual-time, .manual-date{
+    border-left: 0;
+}
+
+.input-row:hover{
+    color: black;
+    background-color: white;
+}
+
+.timer.row{
+    background-color: white;
+    color: black;
+}
+
+.resume-table{
+    margin-bottom: 3rem;
+}
+
+.resume-table > div + div {
+    border-top: 0;
+}
+
+
+.edit-icon{
+    padding-right: 0.5rem;
+}
+
+.resume-day-title{
+    color: black;
+    margin-top: 1rem;
+    font-size: 0.85rem;
+}
+
+.resume-week-title{
+    font-weight: 500;
+    color: black;
+    margin-top: 3rem;
+    font-size: 0.85rem;
+    border-bottom: 1px solid black;
+}
+
+
+.btn .ctrl{
+    width: 6.5rem;
+}
+
+.ctrl > i{
+    margin-right: 0.2rem;
+}
+
+button > i{
+    margin-right: 0.3rem;
+ }
+
+ .menu-item{
+    cursor:pointer;
+ }
+
+.menu-item.selected {
+    background-color: #0d6efd;
+    color: white;
+    
+}
+.activity-table{
+    margin-bottom: 1.25rem;
+}
+
+.sub-activity-row{
+    margin-left: 0.9rem;
+    max-width: 38rem;
+}
+
+.calendar-activity-row{
+    margin-left: 0.9rem;
+    max-width: 22.5rem;
+}
+
+.calendar-activity-row > *{
+    border-top: 0;
+}
+
+.sub-activity-row > * {
+    border-top: 0;
+}
+
+.icon-selected{
+    color: white;
+    background-color: #22262a;
+}
+
+.sub-activities{
+    min-width: 3rem;
+}
+
+.create-sub-activity{
+    max-width: 35.25rem;
+}
+
+
+.disabled-btn{
+    color: #252525
+}
+
+.active-btn{
+    color: #0d6efd;
+}

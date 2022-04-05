@@ -1,0 +1,82 @@
+.header{
+    background-color: #0d6efd;
+    color: white;
+}
+
+.logo{
+    font-family: 'PT Sans', sans-serif;
+    font-weight: bold;
+    font-size: 1.75rem;
+    color: white;
+    padding: 0.5rem 0 0.5rem 0;
+    cursor:pointer;
+}
+
+.tools ul{
+
+    display: inline-block;
+    list-style-type: none;
+    margin: 0;
+    padding: 0;
+    border-left: 1px solid white;
+    border-right: 1px solid white;
+    cursor:pointer;
+}
+
+.tools li{
+    display: inline-block;
+    font-size: 1rem;
+    width: 5.5rem;
+    
+}
+
+.tools li:hover{
+    color: #cacaca;       
+}
+
+.tools ul > li + li{
+
+border-left: 1px solid white;
+
+}
+
+.tools-i-title{
+    font-size: 0.8rem;
+    padding-left: 0.2rem;
+
+}
+
+.time{
+    font-size: 1.2rem;
+    font-weight: 500;
+    cursor:default;
+    width: 7rem;
+}
+
+.time.line{
+    background-color: white;
+    color: black;
+}
+
+.resume-table > div + div {
+    border-top: 0;
+}
+
+
+.edit-icon{
+    padding-right: 0.5rem;
+}
+
+.resume-day-title{
+    color: black;
+    margin-top: 1rem;
+    font-size: 0.85rem;
+
+
+}
+
+.btn.ctrl{
+    width: 6rem;
+}
+
+
