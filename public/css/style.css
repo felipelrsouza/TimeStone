@@ -5,6 +5,10 @@ a{
     text-decoration: none;
 }
 
+a:hover{
+    color: #bac7da;
+}
+
 .header{
     background-color: #43608b;
     color: white;
@@ -57,16 +61,50 @@ border-left: 1px solid white;
     background-color: #eaedf0;
 }
 
-.time{
-    font-size: 1.2rem;
+.timer{
     font-weight: 500;
+    font-size: 1.05rem;
     cursor:default;
-    width: 7rem;
+    width: 7rem;   
 }
 
-.time.line{
+.input-row{
+    color: black;
+    border-color: black;
+}
+
+.input-row:hover{
+    color: black;
+}
+
+.title-row{
+    border: 1px black solid;
+    border-right: 0px;
+    color: black;
+}
+
+.title-row:hover{
     background-color: white;
     color: black;
+    cursor: default;
+}
+
+.manual-time, .manual-date{
+    border-left: 0;
+}
+
+.input-row:hover{
+    color: black;
+    background-color: white;
+}
+
+.timer.row{
+    background-color: white;
+    color: black;
+}
+
+.resume-table{
+    margin-bottom: 3rem;
 }
 
 .resume-table > div + div {
@@ -82,12 +120,78 @@ border-left: 1px solid white;
     color: black;
     margin-top: 1rem;
     font-size: 0.85rem;
-
-
 }
 
-.btn.ctrl{
-    width: 6rem;
+.resume-week-title{
+    font-weight: 500;
+    color: black;
+    margin-top: 3rem;
+    font-size: 0.85rem;
+    border-bottom: 1px solid black;
 }
 
 
+.btn .ctrl{
+    width: 6.5rem;
+}
+
+.ctrl > i{
+    margin-right: 0.2rem;
+}
+
+button > i{
+    margin-right: 0.3rem;
+ }
+
+ .menu-item{
+    cursor:pointer;
+ }
+
+.menu-item.selected {
+    background-color: #0d6efd;
+    color: white;
+    
+}
+.activity-table{
+    margin-bottom: 1.25rem;
+}
+
+.sub-activity-row{
+    margin-left: 0.9rem;
+    max-width: 38rem;
+}
+
+.calendar-activity-row{
+    margin-left: 0.9rem;
+    max-width: 22.5rem;
+}
+
+.calendar-activity-row > *{
+    border-top: 0;
+}
+
+.sub-activity-row > * {
+    border-top: 0;
+}
+
+.icon-selected{
+    color: white;
+    background-color: #22262a;
+}
+
+.sub-activities{
+    min-width: 3rem;
+}
+
+.create-sub-activity{
+    max-width: 35.25rem;
+}
+
+
+.disabled-btn{
+    color: #252525
+}
+
+.active-btn{
+    color: #0d6efd;
+}

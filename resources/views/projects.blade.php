@@ -1,16 +1,19 @@
 @extends('layouts.master')
 
-@section('title', 'TimeSTONE')
+@section('title', 'Projects')
 @section('content')
 
 
 
 
 <div id="project-create-container" class="col-md-6 offset-md-3">
-<h1>Projects</h1>
+    <br>
+<h2 class="text-center">Projects</h2>
 <br>
 @foreach($projects as $project)
-<h6>Title: {{$project -> title}}</h6>Description: {{$project -> description}}<br><br>
+<h6>{{$project -> id}} - {{$project -> title}}  </h6>{{$project -> description}}<br><br>
+
+<div style="cursor: pointer" data-id='{{$project -> id}}' onClick='deleteProject(this)' ><i class="fa-solid fa-trash"></i> Delete<br><br></div>
 @endforeach
 
 <h4>Create a new project</h4>
@@ -24,11 +27,21 @@
         <label for="title">Description:</label>
         <textarea name="description" id="description" class="form-control" placeholder="Short project description."></textarea>
     </div>
-<input type="submit" class="btn btn-primary" value="Create">
+    <br>
+    <div class="text-center">
+<input type="submit" class="btn btn-primary " value="Create">
+</div>
 </form>
 
 
 </div>
 
 </div>
+
+<!-- Axios JS -->
+<script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+
+<!-- General Page JS -->
+<script src="/js/general_script.js"></script>
+
 @endsection

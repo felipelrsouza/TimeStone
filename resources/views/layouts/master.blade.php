@@ -6,7 +6,7 @@
   <meta http-equiv="X-UA-Compatible" content="IE=edge" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
-  <title>@yield('title')</title>
+  <title>@yield('title') - TimeSTONE</title>
 
   <!-- Google Fonts -->
   <link rel="preconnect" href="https://fonts.googleapis.com" />
@@ -27,21 +27,9 @@
       <div class="tools col-8 text-center">
         <ul>
           <li>
-            <a href="/tracker">
+            <a href="/">
               <i class="fa-solid fa-clock"></i>
               <div class="tools-i-title">Time Tracker</div>
-            </a>
-          </li>
-          <li>
-            <a href="/calendar">
-              <i class="fa-solid fa-calendar-days"></i>
-              <div class="tools-i-title">Calendar</div>
-            </a>
-          </li>
-          <li>
-            <a href="/dashboard">
-              <i class="fa-solid fa-table-cells-large"></i>
-              <div class="tools-i-title">Dashboard</div>
             </a>
           </li>
           <li>
@@ -58,18 +46,13 @@
           </li>
         </ul>
       </div>
-      <div class="user-info col-2 text-center">INFO DO USUÁRIO</div>
+      <div class="user-info col-2 text-center"><a href="https://github.com/felipelrsouza">GitHub</a>
+      </div>
     </div>
   </div>
 
   @yield('content')
-
-  <!-- Axios JS -->
-  <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
-
-  <!-- This website JS -->
-  <script src="/js/script.js"></script>
-
+  
   <!-- FontAwesome JS -->
   <script src="https://kit.fontawesome.com/c897f32515.js" crossorigin="anonymous"></script>
 

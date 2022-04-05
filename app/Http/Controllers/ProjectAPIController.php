@@ -20,7 +20,7 @@ class ProjectAPIController extends Controller
      */
     public function index()
     {
-        return $this->store->simplePaginate(10);
+        return $this->store->simplePaginate(200);
     }
 
     /**

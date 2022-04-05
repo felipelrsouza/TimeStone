@@ -1,122 +1,125 @@
         @extends('layouts.master')
 
-        @section('title', 'TimeSTONE')
+        @section('title', 'Tracker')
         @section('content')
 
         @if(session('msg'))
         <p>{{session('msg')}}</p>
         @endif
-        
+
         <div class="main-content container align-items-center pt-5">
           <h6>Start tracking a new activity:</h6>
-          <div id="line-0" class="create-activity-line input-group">
-            <button style="display:none;" class="btn btn-outline-secondary" type="button">
-              <i class="fa-solid fa-caret-down"></i> 5
+
+          <!-- Activity menu  -->
+
+          <div id="activity-row-id" class="activity-row input-group">
+
+            <button class="sub-activities btn btn-outline-dark d-none" data-type="sub-activities" onclick="actionManager(this)" type="button">
+              <i class="fa-solid fa-caret-down"></i> n
             </button>
-            <input id="activity-title--0" type="text" class="form-control" placeholder="What are you working on?" required />
-            <button id="project--0" onclick="actionManager(this)" class="btn btn-outline-secondary" data-bs-toggle="dropdown" aria-expanded="false" type="button">
-            <i class="fa-solid fa-newspaper"></i> Project (0/{{$projects -> count()}})
+
+            <input data-type="activity-title" onkeyup="actionManager(this)" type="text" class="activity-title form-control input-line rounded-start" placeholder="What are you working on?" />
+
+            <button data-type="project" class="project btn btn-outline-dark" data-bs-toggle="dropdown" aria-expanded="false" type="button">
+              <i class="fa-solid fa-newspaper"></i> Projects
             </button>
+
             <ul class="dropdown-menu">
               @foreach($projects as $projects)
-              <div class="menu-item" data-id={{$projects -> id}}>
+              <div class="menu-item" onclick="actionManager(this)" data-type="project-item" data-id={{$projects -> id}}>
                 {{$projects -> title}}
               </div>
               @endforeach
+              <div class="dropdown-divider"></div>
+              <div class="menu-item"><a href="/projects"><i class="fa-solid fa-arrow-up-right-from-square"></i> Create new project </a></div>
             </ul>
-            <button id="tags--0" onclick="actionManager(this)" class="btn btn-outline-secondary" data-bs-toggle="dropdown" aria-expanded="false" type="button">
-              <i class="fa-solid fa-tag"></i> Tags (0/{{$tags -> count()}})
+
+            <button data-type="tags" class="tags btn btn-outline-dark" data-bs-toggle="dropdown" aria-expanded="false" type="button">
+              <i class="fa-solid fa-tag"></i> Tags
             </button>
+
             <ul class="dropdown-menu">
               @foreach($tags as $tags)
-              <div class="menu-item" data-id={{$projects -> id}}>
-                  {{$tags -> title}}
+              <div class="menu-item" onclick="actionManager(this)" data-type="tags-item" data-id={{$tags -> id}}>
+                {{$tags -> title}}
               </div>
               @endforeach
+              <div class="menu-item"><a href="/tags"><i class="fa-solid fa-arrow-up-right-from-square"></i> Create new tag </a></div>
             </ul>
-            <button id="billable--0" onclick="actionManager(this)" class="btn btn-outline-secondary" type="button">
+
+            <button data-type="billable" onclick="actionManager(this)" class="billable btn btn-outline-dark" type="button">
               <i class="fa-solid fa-dollar-sign"></i> Billable
             </button>
-            <button style="display: none" class="btn btn-outline-secondary" type="button">
-              <i class="fa-solid fa-pencil edit-icon"></i> 00:00 to 00:00
-            </button>
-            <button style="display: none" class="btn btn-outline-secondary" type="button">
-              <i class="fa-solid fa-calendar-days"></i>
-            </button>
-            <div id="timer--0" onclick="actionManager(this)" class="time line btn btn-outline-secondary">
+
+            <div data-type="timer" class="timer btn btn-outline-dark ">
               00:00:00
             </div>
-            <button id="ctrl--0" onclick="actionManager(this)" class="btn ctrl btn-outline-secondary" type="button">
-              <i class="fa-solid fa-play"></i> Start
+
+            <button data-type="ctrl-btn" onclick="actionManager(this)" class="ctrl btn btn-outline-dark rounded-end" type="button">
+              <i class="fa-solid fa-plus"></i> Create
             </button>
-            <button class="btn btn-outline-secondary rounded-end" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+
+            <button data-type="options" class="options btn btn-outline-dark rounded-end d-none" type="button" data-bs-toggle="dropdown" aria-expanded="false">
               <i class="fa-solid fa-ellipsis-vertical"></i>
             </button>
             <ul class="dropdown-menu">
-              <li>
-                <a class="dropdown-item" href="#"><i class="fa-solid fa-pen-to-square"></i> Manual</a>
-              </li>
-              <li>
-                <a class="dropdown-item" href="#"><i class="fa-solid fa-trash"></i> Delete</a>
-              </li>
+              <div class="menu-item" data-type="delete-activity" onclick="actionManager(this)" href="#"><i class="fa-solid fa-trash"></i> Delete</div>
+              <div class="menu-item" data-type="close-activity" onclick="actionManager(this)" href="#"><i class="fa-solid fa-lock"></i> Close</div>
             </ul>
+
           </div>
+
+
+          <!-- Sub-activity menu  -->
+
+          <div id="sub-act-id" class="sub-activity-row input-group d-none">
+
+            <div class="sub-activities btn btn-outline-dark">
+              id
+            </div>
+            <div class="btn title-row" type="button">
+              Start:
+            </div>
+
+            <input type="time" class="manual-time start-time activity-title form-control btn-outline-dark input-row" />
+
+            <div class="title-row btn">
+              End:
+            </div>
+
+            <input type="time" class="manual-time end-time activity-title form-control btn-outline-dark input-row" />
+
+            <button data-type="update-subact" onclick="actionManager(this)" class="save btn btn-outline-dark" type="button">
+              <i class="fa-solid fa-floppy-disk"></i></button>
+
+            <button data-type="del-subact" class="del-subact btn btn-outline-dark rounded-end" onclick="actionManager(this)" type="button">
+              <i class="fa-solid fa-trash"></i></button>
+
+          </div>
+
+          <!-- Date-activity menu  -->
+
+          <div id="calendar-act-id" class="calendar-activity-row input-group d-none">
+            <div class="title-row btn rounded-start" type="button">
+              Date:
+            </div>
+
+            <input type="date" class="manual-date activity-title form-control btn-outline-dark input-row" />
+            <button data-type="update-calendar" onclick="actionManager(this)" class="save btn btn-outline-dark" type="button">
+              <i class="fa-solid fa-floppy-disk"></i>
+            </button>
+          </div>
+
           <br />
-
-          <!-- Modal -->
-          <div class="modal fade" id="create-new-project" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
-            <div class="modal-dialog">
-              <div class="modal-content">
-                <div class="modal-header">
-                  <h5 class="modal-title" id="staticBackdropLabel">
-                    Create new project
-                  </h5>
-                  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                </div>
-                <div class="modal-body">
-                  Project name:
-                  <input type="text" class="form-control" required /> <br>
-                  Description:
-                  <input type="text" class="form-control" />
-                </div>
-                <div class="modal-footer">
-                  <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
-                    Close
-                  </button>
-                  <button type="button" class="btn btn-primary">Create</button>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <!-- Modal -->
-          <div class="modal fade" id="create-new-tag" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
-            <div class="modal-dialog">
-              <div class="modal-content">
-                <div class="modal-header">
-                  <h5 class="modal-title" id="staticBackdropLabel">
-                    Create new tag
-                  </h5>
-                  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                </div>
-                <div class="modal-body">
-                  Tag name:
-                  <input type="text" class="form-control" required />
-                </div>
-                <div class="modal-footer">
-                  <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
-                    Close
-                  </button>
-                  <button type="button" class="btn btn-primary">Create</button>
-                </div>
-              </div>
-            </div>
-          </div>
 
           <div id="resume-table" class="resume-table">
           </div>
 
         </div>
-        
+        <!-- Axios JS -->
+        <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+
+        <!-- Tracker Page JS -->
+        <script src="/js/tracker_script.js"></script>
 
         @endsection
