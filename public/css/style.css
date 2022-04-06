@@ -123,6 +123,14 @@ border-left: 1px solid white;
     border-bottom: 2px solid #031927;
 }
 
+.act-id-input{
+    max-width: 3.2rem;
+    border-right: 0;
+}
+
+.act-id-button{
+    border-left: 0;
+}
 
 .ctrl.btn.btn-outline-dark{
     width: 6.5rem;

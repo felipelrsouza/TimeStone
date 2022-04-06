@@ -104,6 +104,7 @@ function newActivity(id) {
 
 //// CACHE VARIABLE FOR ACTIVITIES NOT YET CREATED.
 let cache = {
+    id: 1,
     project: [],
     tags: [],
     billable: 0,
@@ -175,12 +176,15 @@ function tagsManager(id, tagId, arg) {
 
 //// TO CLOSE A ACTIVITY ////
 
-function closeActivity(id) {
+function closeActivity(id, arg) {
 
     if (actList[id]["isClosed"] == 0) {
-        if (actList[id]["timeList"].length % 2 == 1) {
+
+        if (actList[id]["timeList"].length % 2) {
             activityManager(id, arg);
+            alert('caiu aqui')
         }
+
         actList[id]["isClosed"] = 1;
         putActivity(id);
         iconUpdate(id);
@@ -195,6 +199,8 @@ function closeActivity(id) {
 //Update row icons
 
 function iconUpdate(id) {
+
+    timersManager()
 
     if (id == "creatorRow") {
         if (cache["project"].length > 0) {
@@ -320,14 +326,14 @@ function iconUpdate(id) {
         }
 
     }
-    timersManagement()
+    
 }
 
 let activeTimers = [];
 let activeDailyTimers = {}
 let activeWeeklyTimers = {}
 
-function timersManagement(){
+function timersManager(){
 
     stopPassiveUpdate = 0
 
@@ -485,6 +491,7 @@ function activityManager(id, arg) {
         document
             .getElementById("activity-row-id")
             .getElementsByClassName("activity-title")[0].value = "";
+        document.getElementById('activity-row-id').getElementsByClassName('act-id-input')[0].value = currentId
 
         iconUpdate("creatorRow");
 
@@ -494,12 +501,14 @@ function activityManager(id, arg) {
 
         //Create row with activity data
         createRow(id, arg);
-        iconUpdate(id);
         createSubRow(id);
+        iconUpdate(id);
     } else {
         //Only insert a new time
         actList[id]["timeList"].push(new Date().toISOString());
         putActivity(id);
+
+
         createSubRow(id);
         iconUpdate(id)
     }
@@ -533,6 +542,10 @@ function createRow(id) {
         .getElementById("activity-row-" + id)
         .getElementsByClassName("activity-title")[0].value =
         actList[id]["title"];
+
+    document
+        .getElementById("activity-row-" + id)
+        .getElementsByClassName("act-id-input")[0].value = id;
     document
         .getElementById("activity-row-" + id)
         .getElementsByClassName("activity-title")[0]
@@ -616,6 +629,7 @@ function createSubRow(id) {
                         .getElementsByClassName("sub-activities")[0].innerHTML =
                         item_id;
                 } else if (i < timeList.length - 1) {
+                    
                     //Ultima linha, exibe calendario
 
                     activityTable.insertAdjacentHTML(
@@ -866,6 +880,21 @@ function actionManager(arg) {
                 }
             }
             break;
+        case arg.getAttribute("data-type").includes("update-id"): // Update ID of activity
+            newId = arg.parentNode.getElementsByClassName('act-id-input')[0].value
+            if (newId in actList){
+                alert('Error! ID already in use.')
+            }else{
+                if(id in actList){
+                    actList[newId] = actList[id]
+                    delete actList[id]
+                    deleteActivity(id)
+                    postActivity(newId)
+                }else{
+                    cache[id] = newId
+                }
+            }
+            break;    
         case arg.getAttribute("data-type").includes("project"): //Add or remove a project from an activity
             let projectId = arg.getAttribute("data-id");
             projectsManager(id, projectId, arg);
@@ -901,14 +930,17 @@ function actionManager(arg) {
                 //Create, start or pause an activity
 
                 activityManager(id, arg);
-                iconUpdate(id, arg);
+                iconUpdate(id);
             } else {
                 if (actList[id]["isClosed"] !== 1) {
                     //Id activity is not closed an activity, allow title change
                     if (arg.parentNode.getElementsByClassName("activity-title")[0].value
                     ) {
+
                         activityManager(id, arg);
-                        iconUpdate(id, arg);
+                        document.getElementById("activity-table-" + id).innerHTML = "";
+                        createSubRow(id);
+                        iconUpdate(id);
                     } else {
                         alert("Enter a title");
                     }
@@ -951,10 +983,10 @@ function actionManager(arg) {
                     }
                 }
                 delete actList[id]["timeListCopy"];
-                putActivity(id);
                 iconUpdate(id);
                 document.getElementById("activity-table-" + id).innerHTML = "";
                 createSubRow(id);
+                putActivity(id);
             } else {
                 alert(
                     "Error! This cannot be deleted, delete the activity instead"
@@ -982,11 +1014,16 @@ function actionManager(arg) {
                             0
                         )
                     );
+
+                    let userWeekStart = subtractDays(userDate.getDay(), userDate).toISOString()
                             
                 if(userDate > today){
                     alert("Error! Date is in the future.")
                 }else{
                 actList[id]['actDate'] = userDate.toISOString()
+                actList[id]['weekStart'] = userWeekStart.toISOString()
+                timersManager()
+                iconUpdate(id)
                 putActivity(id);
                 document.location.reload();
             }
@@ -1059,46 +1096,66 @@ let stopPassiveUpdate = 0
         }
     }
 
+    let longerTimer = 0
+    let longerTimerId
+    let oldLongerTimerId
+
     // //Update Daily timers
     for (let datestring in activeDailyTimers) {
         let sum = 0
+        let actSum = 0
+
 
         for (let i = 0; i < activeDailyTimers[datestring].length; i++) {
             let itemId = activeDailyTimers[datestring][i]
-            
-            sum = sum + timestrToSec(document.getElementById('activity-row-'+itemId).getElementsByClassName('timer')[0].innerText)
+            actSum = timestrToSec(document.getElementById('activity-row-'+itemId).getElementsByClassName('timer')[0].innerText)
+            sum = sum + actSum                       
+
+
         }      
+
+
+        if(sum>longerTimer){ //Set the longer day in the week
+            if(longerTimerId != null){
+                oldLongerTimerId = longerTimerId
+                console.log(oldLongerTimerId)
+            }                
+            longerTimer = sum            
+            longerTimerId = actList[activeDailyTimers[datestring][0]]['actDate'].slice(0, 10)
+        }    
+
+
         
         dayTimerId = getKeyByValue(activeDailyTimers, activeDailyTimers[datestring])
         document.getElementById('date-title-'+dayTimerId).getElementsByClassName('timer')[0].innerText = formatTime(sum).slice(0, -3)
         document.getElementById('date-title-'+dayTimerId).getElementsByClassName('timer-productive')[0].innerText = Math.round((sum / 28800) * 100)+'% prod.'
     }
 
-    // //Update Weekly timers
-    for (let weekstring in activeWeeklyTimers) {
-        let sum = 0
-        let longerTimer = 0
-        let longerTimerId = null
-        let oldLongerTimerId = null
-            
-        for (let i = 0; i < activeWeeklyTimers[weekstring].length; i++) {
-            let itemId = activeWeeklyTimers[weekstring][i]
-            let daySum = timestrToSec(document.getElementById('activity-row-'+itemId).getElementsByClassName('timer')[0].innerText)
-            sum = sum + daySum
-            
-              if(daySum>longerTimer){ //Set the longer day in the week
-                if(longerTimerId != null){oldLongerTimerId = longerTimerId}                
-                longerTimer = daySum
-                longerTimerId = actList[activeWeeklyTimers[weekstring][i]]['actDate'].slice(0, 10)
-            }  
-        }
-
-        weekTimerId = getKeyByValue(activeWeeklyTimers, activeWeeklyTimers[weekstring])
-
-        if(oldLongerTimerId != null){
+    //Get largest day in week
+    if(longerTimerId != null){ 
+    if(oldLongerTimerId != null){
+        timersManager()
         document.getElementById('date-title-'+oldLongerTimerId).getElementsByClassName('first-of-week')[0].classList.add('d-none') // Show/hide largest day icon
         }
-        document.getElementById('date-title-'+longerTimerId).getElementsByClassName('first-of-week')[0].classList.remove('d-none')// Show/hide largest day icon
+    document.getElementById('date-title-'+longerTimerId).getElementsByClassName('first-of-week')[0].classList.remove('d-none')// Show/hide largest day icon
+    }
+        
+    
+    // //Update Weekly timers
+    for (let weekstring in activeWeeklyTimers) { //Roda nos dias por semana
+        let sum = 0
+        let actSum = 0
+            
+        for (let i = 0; i < activeWeeklyTimers[weekstring].length; i++) { //Roda por dia
+            let itemId = activeWeeklyTimers[weekstring][i]
+            actSum = timestrToSec(document.getElementById('activity-row-'+itemId).getElementsByClassName('timer')[0].innerText)
+
+            sum = sum + actSum
+        }
+
+        //console.log(formatTime(sum))
+
+        weekTimerId = getKeyByValue(activeWeeklyTimers, activeWeeklyTimers[weekstring])
 
         document.getElementById('week-timer-'+weekTimerId).getElementsByClassName('timer')[0].innerText = formatTime(sum).slice(0, -3)
     
@@ -1106,6 +1163,7 @@ let stopPassiveUpdate = 0
 })();
 
 function recreateActivities(data) {
+    currentId = 0
     for (var prop in data) {
         actList[data[prop]["id"]] = {
             title: data[prop]["title"],
@@ -1170,31 +1228,28 @@ function recreateActivities(data) {
 
         if (actList[data[prop]["id"]]["timeList"].length % 2) {
             if (thisTime > actDateLimit || actDateLimit < thisTimeStart || thisTime > actDateLimit) {
-                alert('caiu aqui 1')
                 actList[data[prop]["id"]]["timeList"].push(actDateLimit);
                 closeActivity(data[prop]["id"]);
 
             } else if (thisTime < thisTimeStart && actList[data[prop]["id"]]["isClosed"] == 0){
-                alert('caiu aqui 2')
                 actList[data[prop]["id"]]["timeList"].push(actDateLimit);
                 closeActivity(data[prop]["id"]);
             }
         }else if (actList[data[prop]["id"]]["timeList"].length % 2 == 0){
 
             if (thisTime > actDateLimit && actList[data[prop]["id"]]["isClosed"] == 0 || thisTime > thisTimeLimit) {
-                alert('caiu aqui 3')
                 closeActivity(data[prop]["id"]);
 
             } else if (thisTime < thisTimeStart && actList[data[prop]["id"]]["isClosed"] == 0){
-                alert('caiu aqui 4')
                 closeActivity(data[prop]["id"]);
 
             }
         }
 
 
-        if (data[prop]["id"] > currentId) {
-            currentId = data[prop]["id"];
+        if (data[prop]["id"] >= currentId) {
+            currentId = parseInt(data[prop]["id"]) + 1;
+            document.getElementById('activity-row-id').getElementsByClassName('act-id-input')[0].value = currentId
         }
     }
 }

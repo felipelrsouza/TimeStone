@@ -15,11 +15,21 @@
           <div id="activity-row-id" class="input-group">
 
             <button class="sub-activities btn btn-outline-dark btn-secondary d-none" data-type="sub-activities" onclick="actionManager(this)" type="button">
-              <i class="fa-solid fa-caret-down"></i> n
+              <i class="fa-solid fa-caret-down"></i>
             </button>
 
-            <input data-type="activity-title" onkeyup="actionManager(this)" type="text" class="activity-title form-control input-line rounded-start" placeholder="What are you working on?" />
-
+            
+          
+            <input data-type="activity-title" onkeyup="actionManager(this)" type="text" class="activity-title form-control input-line rounded-start " placeholder="What are you working on?" />
+            
+            <input data-type="activity-id" type="number" class="act-id-input form-control input-line btn-outline-dark" value="1" min="1" />
+            
+            <button data-type="update-id" class="act-id-button btn btn-outline-dark" onclick="actionManager(this)" type="button">
+            <i class="fa-solid fa-arrows-rotate"></i>
+          </button>
+            
+            
+            
             <button data-type="project" class="project btn btn-outline-dark" data-bs-toggle="dropdown" aria-expanded="false" type="button">
               <i class="fa-solid fa-newspaper"></i> Projects
             </button>
