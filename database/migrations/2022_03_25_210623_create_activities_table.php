@@ -20,7 +20,9 @@ class CreateActivitiesTable extends Migration
             $table->string('tags')->nullable();
             $table->boolean('billable');
             $table->boolean('isClosed');
-            $table->text('timeList')->nullable();
+            $table->text('timeList');
+            $table->string('actDate');
+            $table->string('weekStart');
             $table->string('user')->nullable();
             $table->timestamps();
         });

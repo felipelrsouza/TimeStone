@@ -12,9 +12,9 @@
 
           <!-- Activity menu  -->
 
-          <div id="activity-row-id" class="activity-row input-group">
+          <div id="activity-row-id" class="input-group">
 
-            <button class="sub-activities btn btn-outline-dark d-none" data-type="sub-activities" onclick="actionManager(this)" type="button">
+            <button class="sub-activities btn btn-outline-dark btn-secondary d-none" data-type="sub-activities" onclick="actionManager(this)" type="button">
               <i class="fa-solid fa-caret-down"></i> n
             </button>
 
@@ -51,7 +51,7 @@
               <i class="fa-solid fa-dollar-sign"></i> Billable
             </button>
 
-            <div data-type="timer" class="timer btn btn-outline-dark ">
+            <div data-type="timer" class="timer btn btn-outline-dark">
               00:00:00
             </div>
 
@@ -77,7 +77,7 @@
             <div class="sub-activities btn btn-outline-dark">
               id
             </div>
-            <div class="btn title-row" type="button">
+            <div class="btn title-row">
               Start:
             </div>
 
@@ -89,7 +89,7 @@
 
             <input type="time" class="manual-time end-time activity-title form-control btn-outline-dark input-row" />
 
-            <button data-type="update-subact" onclick="actionManager(this)" class="save btn btn-outline-dark" type="button">
+            <button data-type="changeSubactTime" onclick="actionManager(this)" class="save btn btn-outline-dark" type="button">
               <i class="fa-solid fa-floppy-disk"></i></button>
 
             <button data-type="del-subact" class="del-subact btn btn-outline-dark rounded-end" onclick="actionManager(this)" type="button">
@@ -100,7 +100,7 @@
           <!-- Date-activity menu  -->
 
           <div id="calendar-act-id" class="calendar-activity-row input-group d-none">
-            <div class="title-row btn rounded-start" type="button">
+            <div class="title-row btn">
               Date:
             </div>
 

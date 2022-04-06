@@ -46,7 +46,7 @@
           </li>
         </ul>
       </div>
-      <div class="user-info col-2 text-center"><a href="https://github.com/felipelrsouza">GitHub</a>
+      <div class="user-info col-2 text-center"><a href="https://github.com/felipelrsouza"><i class="fa-brands fa-github"></i> GitHub</a>
       </div>
     </div>
   </div>
