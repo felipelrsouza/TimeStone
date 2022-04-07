@@ -24,7 +24,7 @@ class ProjectController extends Controller{
 
         $project -> save();
 
-        return redirect('/')->with('msg', 'Projeto criado com sucesso!');
+        return redirect('/projects');
 
      }
 
