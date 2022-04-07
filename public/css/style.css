@@ -1,3 +1,7 @@
+body{
+    color: #003554
+}
+
 a{
     padding: 0;
     margin: 0;
@@ -5,12 +9,16 @@ a{
     text-decoration: none;
 }
 
+.activity-row{
+    margin-bottom: 0.2rem;
+}
+
 a:hover{
-    color: #bac7da;
+    color: #003554;
 }
 
 .header{
-    background-color: #43608b;
+    background-color: #0582CA;
     color: white;
 }
 
@@ -61,31 +69,19 @@ border-left: 1px solid white;
     background-color: #eaedf0;
 }
 
-.timer{
-    font-weight: 500;
-    font-size: 1.05rem;
-    cursor:default;
-    width: 7rem;   
-}
 
 .input-row{
-    color: black;
-    border-color: black;
+    border-color: 0582CA;
 }
 
-.input-row:hover{
-    color: black;
-}
 
 .title-row{
-    border: 1px black solid;
+    border: 1px #0582CA solid;
     border-right: 0px;
-    color: black;
+
 }
 
 .title-row:hover{
-    background-color: white;
-    color: black;
     cursor: default;
 }
 
@@ -93,45 +89,50 @@ border-left: 1px solid white;
     border-left: 0;
 }
 
+.manual-time:hover, .manual-date:hover{
+    border-left: 0;
+    color: #031927;
+    border-color: #0582CA;
+}
+
 .input-row:hover{
-    color: black;
     background-color: white;
 }
 
 .timer.row{
     background-color: white;
-    color: black;
 }
 
 .resume-table{
     margin-bottom: 3rem;
 }
 
-.resume-table > div + div {
-    border-top: 0;
-}
-
-
 .edit-icon{
     padding-right: 0.5rem;
 }
 
 .resume-day-title{
-    color: black;
     margin-top: 1rem;
     font-size: 0.85rem;
 }
 
 .resume-week-title{
     font-weight: 500;
-    color: black;
-    margin-top: 3rem;
+    margin-top: 1.5rem;
     font-size: 0.85rem;
-    border-bottom: 1px solid black;
+    border-bottom: 2px solid #031927;
 }
 
+.act-id-input{
+    max-width: 3.2rem;
+    border-right: 0;
+}
 
-.btn .ctrl{
+.act-id-button{
+    border-left: 0;
+}
+
+.ctrl.btn.btn-outline-dark{
     width: 6.5rem;
 }
 
@@ -148,7 +149,7 @@ button > i{
  }
 
 .menu-item.selected {
-    background-color: #0d6efd;
+    background-color: #0582CA;
     color: white;
     
 }
@@ -170,14 +171,36 @@ button > i{
     border-top: 0;
 }
 
-.sub-activity-row > * {
-    border-top: 0;
+.btn-outline-dark{
+    border-color: #0582CA;
+    color: #031927;
 }
 
-.icon-selected{
+.btn.btn-outline-dark:hover{
+    border-color: #0582CA;
     color: white;
-    background-color: #22262a;
+    background-color: #0582CA;
 }
+
+.btn-secondary{
+    color: white;
+    background-color: #0582CA;
+}
+
+
+.timer{
+    font-weight: 500;
+    font-size: 1.05rem;
+    cursor:default;
+    width: 7rem;   
+    color: #031927;
+}
+
+.timer.btn.btn-outline-dark:hover{
+    background-color: white;
+    color: #031927;
+}
+
 
 .sub-activities{
     min-width: 3rem;
@@ -187,11 +210,3 @@ button > i{
     max-width: 35.25rem;
 }
 
-
-.disabled-btn{
-    color: #252525
-}
-
-.active-btn{
-    color: #0d6efd;
-}

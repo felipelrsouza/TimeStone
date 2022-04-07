@@ -12,19 +12,29 @@
 
           <!-- Activity menu  -->
 
-          <div id="activity-row-id" class="activity-row input-group">
+          <div id="activity-row-id" class="input-group">
 
-            <button class="sub-activities btn btn-outline-dark d-none" data-type="sub-activities" onclick="actionManager(this)" type="button">
-              <i class="fa-solid fa-caret-down"></i> n
+            <button class="sub-activities btn btn-outline-dark btn-secondary d-none" data-type="sub-activities" onclick="actionManager(this)" type="button">
+              <i class="fa-solid fa-caret-down"></i>
             </button>
 
-            <input data-type="activity-title" onkeyup="actionManager(this)" type="text" class="activity-title form-control input-line rounded-start" placeholder="What are you working on?" />
+
+
+            <input data-type="activity-title" onkeyup="actionManager(this)" type="text" class="activity-title form-control input-line rounded-start " placeholder="What are you working on?" />
+
+            <input data-type="activity-id" type="number" class="act-id-input form-control input-line btn-outline-dark" value="1" min="1" />
+
+            <button data-type="update-id" class="act-id-button btn btn-outline-dark" onclick="actionManager(this)" type="button">
+              <i class="fa-solid fa-arrows-rotate"></i>
+            </button>
+
+
 
             <button data-type="project" class="project btn btn-outline-dark" data-bs-toggle="dropdown" aria-expanded="false" type="button">
               <i class="fa-solid fa-newspaper"></i> Projects
             </button>
 
-            <ul class="dropdown-menu">
+            <ul class="project-menu dropdown-menu">
               @foreach($projects as $projects)
               <div class="menu-item" onclick="actionManager(this)" data-type="project-item" data-id={{$projects -> id}}>
                 {{$projects -> title}}
@@ -51,7 +61,7 @@
               <i class="fa-solid fa-dollar-sign"></i> Billable
             </button>
 
-            <div data-type="timer" class="timer btn btn-outline-dark ">
+            <div data-type="timer" class="timer btn btn-outline-dark">
               00:00:00
             </div>
 
@@ -69,6 +79,18 @@
 
           </div>
 
+          <!--- Activity Group menu -->
+          <div id="project-cards" class="row">
+            <div id="project-card-id" class="col-sm-3 pt-3 d-none">
+              <div class="card">
+                <div class="card-body">
+                  <h6 class="card-title text-center text-uppercase">Titulo</h6>
+                  <p class="card-text text-center ">Descrição</p>
+                  <h4 class="proj-timer text-center">00:00</h4>
+                </div>
+              </div>
+            </div>
+          </div>
 
           <!-- Sub-activity menu  -->
 
@@ -77,7 +99,7 @@
             <div class="sub-activities btn btn-outline-dark">
               id
             </div>
-            <div class="btn title-row" type="button">
+            <div class="btn title-row">
               Start:
             </div>
 
@@ -89,7 +111,7 @@
 
             <input type="time" class="manual-time end-time activity-title form-control btn-outline-dark input-row" />
 
-            <button data-type="update-subact" onclick="actionManager(this)" class="save btn btn-outline-dark" type="button">
+            <button data-type="changeSubactTime" onclick="actionManager(this)" class="save btn btn-outline-dark" type="button">
               <i class="fa-solid fa-floppy-disk"></i></button>
 
             <button data-type="del-subact" class="del-subact btn btn-outline-dark rounded-end" onclick="actionManager(this)" type="button">
@@ -100,7 +122,7 @@
           <!-- Date-activity menu  -->
 
           <div id="calendar-act-id" class="calendar-activity-row input-group d-none">
-            <div class="title-row btn rounded-start" type="button">
+            <div class="title-row btn">
               Date:
             </div>
 

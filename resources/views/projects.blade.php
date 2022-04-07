@@ -11,9 +11,9 @@
 <h2 class="text-center">Projects</h2>
 <br>
 @foreach($projects as $project)
-<h6>{{$project -> id}} - {{$project -> title}}  </h6>{{$project -> description}}<br><br>
+<h6>{{$project -> id}} - {{$project -> title}} - <span style="cursor: pointer" data-id='{{$project -> id}}' onClick='deleteProject(this)' ><i class="fa-solid fa-trash"></i> Delete<br><br></span></h6>
 
-<div style="cursor: pointer" data-id='{{$project -> id}}' onClick='deleteProject(this)' ><i class="fa-solid fa-trash"></i> Delete<br><br></div>
+
 @endforeach
 
 <h4>Create a new project</h4>

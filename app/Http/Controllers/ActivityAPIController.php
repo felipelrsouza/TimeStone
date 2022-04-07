@@ -20,7 +20,7 @@ class ActivityAPIController extends Controller
      */
     public function index()
     {
-        return $this->store->simplePaginate(200);
+        return $this->store::orderBy('actDate', 'asc')->simplePaginate(200);
     }
 
     /**
