@@ -209,6 +209,7 @@ function closeActivity(id, arg) {
 //Update row icons
 
 function iconUpdate(id) {
+
     timersManager();
 
     if (id == "creatorRow") {
@@ -286,7 +287,7 @@ function iconUpdate(id) {
 
         if (
             actList[id]["timeList"].length % 2 == 0 &&
-            actList[id]["isClosed"] === 0
+            actList[id]["isClosed"] == 0
         ) {
             document
                 .getElementById("activity-row-" + id)
@@ -298,7 +299,7 @@ function iconUpdate(id) {
                 .classList.remove("btn-secondary");
         } else if (
             actList[id]["timeList"].length % 2 &&
-            actList[id]["isClosed"] === 0
+            actList[id]["isClosed"] == 0
         ) {
             document
                 .getElementById("activity-row-" + id)
@@ -309,6 +310,7 @@ function iconUpdate(id) {
                 .getElementsByClassName("ctrl")[0]
                 .classList.add("btn-secondary");
         }
+
 
         if (actList[id]["isClosed"] == 1) {
             document
