@@ -177,20 +177,16 @@ function projectsManager(id, projectId, arg) {
             removeItemOnce(actList[id]["project"], projectId);
             removeItemOnce(projList[projectId]["activities"], id);
             arg.classList.remove("selected");
-            putActivity(id);
             putProject(projectId);
+            putActivity(id);
             iconUpdate(id);
-            console.log(projList);
         } else {
-            console.log(projList[projectId]);
             actList[id]["project"].push(projectId);
             projList[projectId]["activities"].push(id);
 
             arg.classList.add("selected");
-
-            putActivity(id);
             putProject(projectId);
-
+            putActivity(id);
             iconUpdate(id);
         }
     } else {
@@ -260,6 +256,7 @@ function closeActivity(id, arg) {
 //Update row icons
 
 function iconUpdate(id) {
+
     timersManager();
 
     if (id == "creatorRow") {
@@ -337,7 +334,7 @@ function iconUpdate(id) {
 
         if (
             actList[id]["timeList"].length % 2 == 0 &&
-            actList[id]["isClosed"] === 0
+            actList[id]["isClosed"] == 0
         ) {
             document
                 .getElementById("activity-row-" + id)
@@ -347,7 +344,10 @@ function iconUpdate(id) {
                 .getElementById("activity-row-" + id)
                 .getElementsByClassName("ctrl")[0]
                 .classList.remove("btn-secondary");
-        } else {
+        } else if (
+            actList[id]["timeList"].length % 2 &&
+            actList[id]["isClosed"] == 0
+        ) {
             document
                 .getElementById("activity-row-" + id)
                 .getElementsByClassName("ctrl")[0].innerHTML =
@@ -358,7 +358,8 @@ function iconUpdate(id) {
                 .classList.add("btn-secondary");
         }
 
-        if (actList[id]["isClosed"] === 1) {
+
+        if (actList[id]["isClosed"] == 1) {
             document
                 .getElementById("activity-row-" + id)
                 .getElementsByClassName("ctrl")[0].innerHTML =
@@ -516,9 +517,7 @@ function changeSubactTime(id, arg) {
 
 //Start a new activity or new time
 function activityManager(id, arg) {
-
-    if (id == currentId + 1) {
-
+    if (id == currentId) {
         newActivity(id);
 
         //Pass cache variable data to activity data
@@ -580,7 +579,7 @@ function activityManager(id, arg) {
 
 //Create row for activity
 
-let currentId = 0;
+let currentId = 1;
 
 function createRow(id) {
     date = new Date(actList[id]["actDate"]);
@@ -898,7 +897,7 @@ function actionManager(arg) {
 
         if (id == "id") {
             // Activity insert row ID
-            id = currentId + 1;
+            id = currentId;
         }
     } else if (arg.parentNode.parentNode.id.includes("activity-table-")) {
         // Activity table ID
@@ -928,7 +927,7 @@ function actionManager(arg) {
 
             break;
         case arg.getAttribute("data-type").includes("activity-title"): // Update title if changed
-            if (id == currentId + 1) {
+            if (id == currentId) {
                 cache["title"] = arg.value;
             } else if (actList[id]["isClosed"] == 1) {
                 alert("Activity is closed");
@@ -995,14 +994,17 @@ function actionManager(arg) {
             }
             break;
         case arg.getAttribute("data-type").includes("ctrl-btn"): //Start the activity manager
-            if (id == currentId + 1) {
+            if (id == currentId) {
                 //Create, start or pause an activity
-                let input = arg.parentNode.parentNode.getElementsByClassName('activity-title')[0]
-                if(input.value == ""){
-                    alert('Error! Activity must have a title.')
-                    return
-                }
 
+                let input =
+                    arg.parentNode.parentNode.getElementsByClassName(
+                        "activity-title"
+                    )[0];
+                if (input.value == "") {
+                    alert("Error! Activity must have a title.");
+                    return;
+                }
 
                 activityManager(id, arg);
             } else {
@@ -1100,8 +1102,6 @@ function actionManager(arg) {
             } else {
                 actList[id]["actDate"] = userDate.toISOString();
                 actList[id]["weekStart"] = userWeekStart.toISOString();
-                timersManager();
-                iconUpdate(id);
                 putActivity(id);
                 document.location.reload();
             }
@@ -1210,10 +1210,6 @@ let stopPassiveUpdate = 0;
         }
     }
 
-    let longerTimer = 0;
-    let longerTimerId;
-    let oldLongerTimerId;
-
     // //Update Daily timers
     for (let datestring in activeDailyTimers) {
         let sum = 0;
@@ -1227,17 +1223,6 @@ let stopPassiveUpdate = 0;
                     .getElementsByClassName("timer")[0].innerText
             );
             sum = sum + actSum;
-        }
-
-        if (sum > longerTimer) {
-            //Set the longer day in the week
-            if (longerTimerId != null) {
-                oldLongerTimerId = longerTimerId;
-            }
-            longerTimer = sum;
-            longerTimerId = actList[activeDailyTimers[datestring][0]][
-                "actDate"
-            ].slice(0, 10);
         }
 
         dayTimerId = getKeyByValue(
@@ -1256,18 +1241,41 @@ let stopPassiveUpdate = 0;
     }
 
     //Get largest day in week
-    if (longerTimerId != null) {
-        if (oldLongerTimerId != null) {
-            timersManager();
-            document
-                .getElementById("date-title-" + oldLongerTimerId)
-                .getElementsByClassName("first-of-week")[0]
-                .classList.add("d-none"); // Show/hide largest day icon
+    for (let weekstring in activeWeeklyTimers) {
+
+        let longerTimer = 0;
+        let longerTimerId;
+        let oldLongerTimerId;
+
+        for (let i = 0; i < activeWeeklyTimers[weekstring].length; i++) {
+
+            let actId =  activeWeeklyTimers[weekstring][i]
+
+            let actIdTimer = timestrToSec(document.getElementById('activity-row-'+ actId).getElementsByClassName('timer')[0].innerText)
+ 
+            if (actIdTimer > longerTimer) {
+                //Set the longer day in the week
+                if (longerTimerId != null) {
+                    oldLongerTimerId = longerTimerId;
+                }
+                
+                longerTimer = actIdTimer;
+                longerTimerId = actList[actId]['actDate'].slice(0, 10)
+            }
+            
         }
-        document
-            .getElementById("date-title-" + longerTimerId)
-            .getElementsByClassName("first-of-week")[0]
-            .classList.remove("d-none"); // Show/hide largest day icon
+        if (longerTimerId != null) {
+            if (oldLongerTimerId != null) {
+                document
+                    .getElementById("date-title-" + oldLongerTimerId)
+                    .getElementsByClassName("first-of-week")[0]
+                    .classList.add("d-none"); // Show/hide largest day icon
+            }
+            document
+                .getElementById("date-title-" + longerTimerId)
+                .getElementsByClassName("first-of-week")[0]
+                .classList.remove("d-none"); // Show/hide largest day icon
+        }  
     }
 
     // //Update Weekly timers
@@ -1306,14 +1314,14 @@ let stopPassiveUpdate = 0;
 
         for (let i = 0; i < projList[projID]["activities"].length; i++) {
             let actId = projList[projID]["activities"][i];
-            if(document.getElementById("activity-row-" + actId)){
-            actTimer = timestrToSec(
-                document
-                    .getElementById("activity-row-" + actId)
-                    .getElementsByClassName("timer")[0].innerText
-            );
-            projTimer = projTimer + actTimer;
-        }
+            if (document.getElementById("activity-row-" + actId)) {
+                actTimer = timestrToSec(
+                    document
+                        .getElementById("activity-row-" + actId)
+                        .getElementsByClassName("timer")[0].innerText
+                );
+                projTimer = projTimer + actTimer;
+            }
         }
 
         document
@@ -1322,11 +1330,9 @@ let stopPassiveUpdate = 0;
             projTimer
         ).slice(0, -3);
     }
-
 })();
 
 function recreateActivities(data) {
-    currentId = 0;
     for (var prop in data) {
         actList[data[prop]["id"]] = {
             title: data[prop]["title"],
@@ -1338,6 +1344,13 @@ function recreateActivities(data) {
             actDate: data[prop]["actDate"],
             weekStart: data[prop]["weekStart"],
         };
+
+        if (data[prop]["id"] >= currentId) {
+            currentId = parseInt(data[prop]["id"]) + 1;
+            document
+                .getElementById("activity-row-id")
+                .getElementsByClassName("act-id-input")[0].value = currentId;
+        }
 
         let actDate = actList[data[prop]["id"]]["actDate"];
 
@@ -1408,30 +1421,30 @@ function recreateActivities(data) {
         );
 
         if (actList[data[prop]["id"]]["timeList"].length % 2 == 0) {
-            if(actList[data[prop]["id"]]["isClosed"] == 0){
-            //Se está pausado
-            {
-                if (actDateLast > nowTimeStart && nowTime > nowTimeLimit) {
-                    actList[data[prop]["id"]]["timeList"][
-                        actList[data[prop]["id"]]["timeList"].length - 1
-                    ] = nowTimeLimit;
-                    closeActivity(data[prop]["id"]);
-                } else if (
-                    actDateLast < nowTimeStart || 
-                    actDateLast > actDateLimit
-                ) {
-                    actList[data[prop]["id"]]["timeList"][
-                        actList[data[prop]["id"]]["timeList"].length - 1
-                    ] = actDateLimit;
-                    closeActivity(data[prop]["id"]);
-                } else if (
-                    actDateLast < nowTimeStart &&
-                    actList[data[prop]["id"]]["isClosed"] == 0
-                ) {
-                    closeActivity(data[prop]["id"]);
+            if (actList[data[prop]["id"]]["isClosed"] == 0) {
+                //Se está pausado
+                {
+                    if (actDateLast > nowTimeStart && nowTime > nowTimeLimit) {
+                        actList[data[prop]["id"]]["timeList"][
+                            actList[data[prop]["id"]]["timeList"].length - 1
+                        ] = nowTimeLimit;
+                        closeActivity(data[prop]["id"]);
+                    } else if (
+                        actDateLast < nowTimeStart ||
+                        actDateLast > actDateLimit
+                    ) {
+                        actList[data[prop]["id"]]["timeList"][
+                            actList[data[prop]["id"]]["timeList"].length - 1
+                        ] = actDateLimit;
+                        closeActivity(data[prop]["id"]);
+                    } else if (
+                        actDateLast < nowTimeStart &&
+                        actList[data[prop]["id"]]["isClosed"] == 0
+                    ) {
+                        closeActivity(data[prop]["id"]);
+                    }
                 }
             }
-        }
 
             if (actList[data[prop]["id"]]["timeList"].length % 2) {
                 //Se está ativo
@@ -1451,14 +1464,6 @@ function recreateActivities(data) {
                     closeActivity(data[prop]["id"]);
                 }
             }
-
-            if (data[prop]["id"] >= currentId) {
-                currentId = parseInt(data[prop]["id"]) + 1;
-                document
-                    .getElementById("activity-row-id")
-                    .getElementsByClassName("act-id-input")[0].value =
-                    currentId;
-            }
         }
     }
 }
@@ -1477,6 +1482,8 @@ function recreateProjects(data) {
 
         if (projList[idProject]["activities"] == null) {
             projList[idProject]["activities"] = [];
+        }else{
+            projList[data[prop]["id"]]['activities'] = JSON.parse(data[prop]["activities"])
         }
         let projTable = document.getElementById("project-cards");
         let card = document.getElementById("project-card-id").innerHTML;
@@ -1512,11 +1519,11 @@ function recreateTags(data) {
 
 //// CONNECTION WITH API ////
 
-const url = "http://127.0.0.1:8000/api/";
+const url = "https://www.beluga.eng.br/timestone/api/";
 
 function getProject() {
     axios
-        .get(url + "projects/")
+        .get(url + "projects")
         .then((response) => {
             const data = response.data.data;
             recreateProjects(data);
@@ -1527,7 +1534,6 @@ function getProject() {
 getProject();
 
 function putProject(id) {
-    console.log(projList[id]);
     let arg = {
         title: projList[id]["title"],
         description: projList[id]["description"],
@@ -1536,7 +1542,7 @@ function putProject(id) {
     axios
         .put(url + "projects/" + id, arg)
         .then((response) => {
-            response.data;
+           console.log(response.data);
         })
         .catch((error) => console.log(error));
 }
@@ -1545,7 +1551,7 @@ function putProject(id) {
 
 function getActivity() {
     axios
-        .get(url + "activities/")
+        .get(url + "activities")
         .then((response) => {
             let data = response.data.data;
             recreateActivities(data);
@@ -1557,7 +1563,7 @@ getActivity();
 
 function postActivity(id) {
     axios
-        .post(url + "activities/", {
+        .post(url + "activities", {
             id: id,
             title: actList[id]["title"],
             project: JSON.stringify(actList[id]["project"]),
@@ -1601,9 +1607,9 @@ function deleteActivity(id) {
         if (projList[prop]["activities"].includes(id)) {
             removeItemOnce(projList[prop]["activities"], id);
             putProject(prop);
-        }else if(projList[prop]["activities"].includes('"'+id+'"'))
-        removeItemOnce(projList[prop]["activities"], '"'+id+'"');
-            putProject(prop);
+        } else if (projList[prop]["activities"].includes('"' + id + '"'))
+            removeItemOnce(projList[prop]["activities"], '"' + id + '"');
+        putProject(prop);
     }
 
     document.location.reload();
@@ -1618,7 +1624,7 @@ function deleteActivity(id) {
 
 function getTag() {
     axios
-        .get(url + "tags/")
+        .get(url + "tags")
         .then((response) => {
             const data = response.data.data;
             recreateTags(data);
@@ -1627,4 +1633,3 @@ function getTag() {
 }
 
 getTag();
-
