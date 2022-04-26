@@ -56,5 +56,5 @@ jobs:
         with:
           app-name: 'timestone'
           slot-name: 'Production'
-          publish-profile: ${{ secrets.AZUREAPPSERVICE_PUBLISHPROFILE_3F1944E6DD9A4CFE8A0AC7C074D340A3 }}
+          publish-profile: ${{ secrets.AZUREAPPSERVICE_PUBLISHPROFILE_51277A13B98942D6B4982A37AE57B5CF }}
           package: .
