@@ -1,6 +1,53 @@
 ///// AUXILIARY DATE AND TIME FUNCTIONS ////
 
-let gmt = -3;
+let userTime = new Date()
+
+console.log(new Date())
+
+let timeCorrector = new Array // 0 -> Year, 1 -> Month, 2 -> Date, 3 -> Hour, 4 -> Minutes, 5 -> Seconds.
+
+if(Math.abs(new Date(serverTime) - userTime)<5000){ //Timer do usuário é confiável
+
+    timeCorrector[0] = 0 //Year
+    timeCorrector[1] = 0 //Month
+    timeCorrector[2] = 0 //Date
+    timeCorrector[3] = 0 //Hour
+    timeCorrector[4] = 0 //Minutes
+    timeCorrector[5] = 0 //Seconds
+
+}else{ //Timer do usuário não é confiável
+
+    timeCorrector[0] = (parseInt(serverTime.slice(0,4))) - parseInt(userTime.toISOString().slice(0,4)) //Year
+    timeCorrector[1] = (parseInt(serverTime.slice(5,7)))-1 - parseInt(userTime.toISOString().slice(5,7)-1) //Month
+    timeCorrector[2] = (parseInt(serverTime.slice(8,10))) - parseInt(userTime.toISOString().slice(8,10)) //Date
+    timeCorrector[3] = (parseInt(serverTime.slice(11,13))) - parseInt(userTime.toISOString().slice(11,13)) //Hour
+    timeCorrector[4] = (parseInt(serverTime.slice(14,16))) - parseInt(userTime.toISOString().slice(14,16)) //Minutes
+    timeCorrector[5] = (parseInt(serverTime.slice(17,19))) - parseInt(userTime.toISOString().slice(17,19)) //Seconds
+}
+
+function getNewDate(){
+
+    console.log('newDate()func => '+ new Date())
+
+    let currentDate = new Date()
+
+    console.log('curentDate => '+currentDate)
+
+    console.log(timeCorrector)
+
+    let newDate = new Date(Date(
+        (currentDate.getFullYear()) + timeCorrector[0],
+        (currentDate.getMonth()) + timeCorrector[1],
+        (currentDate.getDate()) + timeCorrector[2],
+        (currentDate.getHours()) + timeCorrector[3],
+        (currentDate.getMinutes()) + timeCorrector[4],
+        (currentDate.getSeconds()) + timeCorrector[5]
+    ))
+
+    console.log('newDate => '+newDate)
+
+    return newDate
+}
 
 function addDays(numOfDays, date = new Date()) {
     const dateCopy = new Date(date.getTime());
@@ -97,7 +144,7 @@ function newProject(id) {
 
 //Create a new activity data in actList
 function newActivity(id) {
-    let date = new Date();
+    let date = getNewDate();
     actList[id] = {
         title: "",
         project: [],
@@ -105,7 +152,7 @@ function newActivity(id) {
         billable: 0,
         timeList: [date.toISOString()],
         isClosed: 0,
-        actDate: new Date().toISOString(),
+        actDate: getNewDate().toISOString(),
         weekStart: subtractDays(date.getDay(), date).toISOString(),
     };
 }
@@ -393,7 +440,7 @@ function changeSubactTime(id, arg) {
         arg.parentNode.getElementsByClassName("sub-activities")[0].innerText
     ); //Get activity ID
 
-    let nowTime = new Date(); //Get current time to compare later
+    let nowTime = getNewDate(); //Get current time to compare later
 
     let startTimeIndex = itemId * 2 - 2; //Get index in array of sub-activity (start time)
     let endTimeIndex = startTimeIndex + 1; //Index of end time
@@ -412,12 +459,12 @@ function changeSubactTime(id, arg) {
 
     let startDateTime = new Date(
         Date.UTC(
-            actYear,
-            actMonth,
-            actDate,
-            startHours - gmt,
-            startMinutes,
-            startSeconds
+            actYear + timeCorrector[0],
+            actMonth + timeCorrector[1],
+            actDate + timeCorrector[2],
+            startHours + timeCorrector[3],
+            startMinutes + timeCorrector[4],
+            startSeconds + timeCorrector[5]
         )
     );
 
@@ -430,17 +477,23 @@ function changeSubactTime(id, arg) {
 
     let endDateTime = new Date(
         Date.UTC(
-            actYear,
-            actMonth,
-            actDate,
-            endHours - gmt,
-            endMinutes,
-            endSeconds
+            actYear + timeCorrector[0],
+            actMonth + timeCorrector[1],
+            actDate + timeCorrector[2],
+            endHours + timeCorrector[3],
+            endMinutes + timeCorrector[4],
+            endSeconds + timeCorrector[5]
         )
     );
 
     let limitTime = new Date(
-        Date.UTC(actYear, actMonth, actDate, 18 - gmt, 00, 01)
+        Date.UTC(
+            actYear + timeCorrector[0],
+            actMonth + timeCorrector[1],
+            actDate + timeCorrector[2],
+            18 + timeCorrector[3],
+            00 + timeCorrector[4],
+            01 + timeCorrector[5])
     );
 
     if (startDateTime > endDateTime) {
@@ -517,7 +570,7 @@ function activityManager(id, arg) {
         iconUpdate(id);
     } else {
         //Only insert a new time
-        actList[id]["timeList"].push(new Date().toISOString());
+        actList[id]["timeList"].push(getNewDate().toISOString());
         putActivity(id);
 
         createSubRow(id);
@@ -1020,7 +1073,7 @@ function actionManager(arg) {
             break;
 
         case arg.getAttribute("data-type").includes("update-calendar"): //Updates the date of an activity
-            let today = new Date();
+            let today = getNewDate();
             let userInput = document
                 .getElementById("calendar-act-" + id)
                 .getElementsByClassName("manual-date")[0].value;
@@ -1031,12 +1084,12 @@ function actionManager(arg) {
 
             let userDate = new Date(
                 Date.UTC(
-                    userInputYear,
-                    userInputMonth,
-                    userInputDate,
-                    1 - gmt,
-                    0,
-                    0
+                    userInputYear + timeCorrector[0],
+                    userInputMonth + timeCorrector[1],
+                    userInputDate + timeCorrector[2],
+                    1 + timeCorrector[3],
+                    0 + timeCorrector[4],
+                    0 + timeCorrector[5]
                 )
             );
 
@@ -1070,7 +1123,7 @@ let stopPassiveUpdate = 0;
 !(function updateTimers() {
     setTimeout(updateTimers, 500); //Update every 0.5 second.
 
-    let nowTime = new Date();
+    let nowTime = getNewDate();
 
     //Update activity timers
 
@@ -1293,7 +1346,13 @@ function recreateActivities(data) {
         let actDateYear = parseInt(actDate.slice(0, 4)); //Year
 
         let actDateLimit = new Date(
-            Date.UTC(actDateYear, actDateMonth, actDateDate, 18 - gmt, 0, 0)
+            Date.UTC(
+                actDateYear + timeCorrector[0],
+                actDateMonth + timeCorrector[1],
+                actDateDate + timeCorrector[2],
+                18 + timeCorrector[3],
+                0 + timeCorrector[4],
+                0 + timeCorrector[5])
         );
 
         let actDateLast =
@@ -1307,19 +1366,19 @@ function recreateActivities(data) {
 
         actDateLast = new Date(
             Date.UTC(
-                actDateYear,
-                actDateMonth,
-                actDateDate,
-                actDateLastHours - gmt,
-                actDateLastMinutes,
-                actDateLastSeconds
+                actDateYear + timeCorrector[0],
+                actDateMonth + timeCorrector[1],
+                actDateDate + timeCorrector[2],
+                actDateLastHours + timeCorrector[3],
+                actDateLastMinutes + timeCorrector[4],
+                actDateLastSeconds + timeCorrector[5]
             )
         );
 
         createRow(data[prop]["id"], actDate);
         createSubRow(data[prop]["id"]);
 
-        let nowTime = new Date();
+        let nowTime = getNewDate();
         let nowTimeString = nowTime.toISOString();
 
         let nowTimeDate = parseInt(nowTimeString.slice(8, 10)); //Date
@@ -1328,23 +1387,23 @@ function recreateActivities(data) {
 
         let nowTimeLimit = new Date(
             Date.UTC(
-                nowTimeYear,
-                nowTimeMonth,
-                nowTimeDate,
-                18 - gmt,
-                0,
-                0
+                nowTimeYear + timeCorrector[0],
+                nowTimeMonth + timeCorrector[1],
+                nowTimeDate + timeCorrector[2],
+                18 + timeCorrector[3],
+                0 + timeCorrector[4],
+                0 + timeCorrector[5]
             )
         );
 
         let nowTimeStart = new Date(
             Date.UTC(
-                nowTimeYear,
-                nowTimeMonth,
-                nowTimeDate,
-                0 - gmt,
-                0,
-                0
+                nowTimeYear + timeCorrector[0],
+                nowTimeMonth + timeCorrector[1],
+                nowTimeDate + timeCorrector[2],
+                0 + timeCorrector[3],
+                0 + timeCorrector[4],
+                0 + timeCorrector[5]
             )
         );
 
@@ -1466,6 +1525,7 @@ function getProject() {
 }
 
 getProject();
+
 function putProject(id) {
     console.log(projList[id]);
     let arg = {

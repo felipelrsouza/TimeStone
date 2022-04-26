@@ -1,16 +1,17 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Http\Controllers\API;
 
 use Illuminate\Http\Request;
 use App\Models\Activity;
+use App\Http\Controllers\Controller;
 
 class ActivityAPIController extends Controller
 {
-    private $store;
+    private $activity;
     public function __construct(Activity $activity)
     {
-        $this->store = $activity;
+        $this->activity = $activity;
     }
 
     /**
@@ -20,7 +21,7 @@ class ActivityAPIController extends Controller
      */
     public function index()
     {
-        return $this->store::orderBy('actDate', 'asc')->simplePaginate(200);
+        return $this->activity::orderBy('actDate', 'asc')->simplePaginate(200);
     }
 
     /**
@@ -31,7 +32,7 @@ class ActivityAPIController extends Controller
      */
     public function store(Request $request)
     {
-        return $this->store->create($request->all());
+        return $this->activity->create($request->all());
     }
 
     /**

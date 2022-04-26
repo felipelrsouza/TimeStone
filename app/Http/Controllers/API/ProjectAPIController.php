@@ -1,16 +1,17 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Http\Controllers\API;
 
 use Illuminate\Http\Request;
-use App\Models\Tag;
+use App\Models\Project;
+use App\Http\Controllers\Controller;
 
-class TagAPIController extends Controller
+class ProjectAPIController extends Controller
 {
-    private $store;
-    public function __construct(Tag $tag)
+    private $project;
+    public function __construct(Project $project)
     {
-        $this->store = $tag;
+        $this->project = $project;
     }
 
     /**
@@ -20,7 +21,7 @@ class TagAPIController extends Controller
      */
     public function index()
     {
-        return $this->store->simplePaginate(200);
+        return $this->project->simplePaginate(200);
     }
 
     /**
@@ -31,7 +32,7 @@ class TagAPIController extends Controller
      */
     public function store(Request $request)
     {
-        return $this->store->create($request->all());
+        return $this->project->create($request->all());
     }
 
     /**
@@ -40,9 +41,9 @@ class TagAPIController extends Controller
      * @param  Project  $project
      * @return \Illuminate\Http\Response
      */
-    public function show(Tag $tag)
+    public function show(Project $project)
     {
-        return $tag;
+        return $project;
     }
 
     /**
@@ -52,9 +53,9 @@ class TagAPIController extends Controller
      * @param  Project  $project
      * @return \Illuminate\Http\Response
      */
-    public function update(Request $request, Tag $tag)
+    public function update(Request $request, Project $project)
     {
-        return $tag->update($request->all()); //Return true or false
+        return $project->update($request->all()); //Return true or false
     }
 
     /**
@@ -63,8 +64,8 @@ class TagAPIController extends Controller
      * @param  Project  $project
      * @return \Illuminate\Http\Response
      */
-    public function destroy(Tag $tag)
+    public function destroy(Project $project)
     {
-        return $tag->delete();
+        return $project->delete();
     }
 }

@@ -1,16 +1,17 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Http\Controllers\API;
 
 use Illuminate\Http\Request;
-use App\Models\Project;
+use App\Models\Tag;
+use App\Http\Controllers\Controller;
 
-class ProjectAPIController extends Controller
+class TagAPIController extends Controller
 {
-    private $store;
-    public function __construct(Project $project)
+    private $tag;
+    public function __construct(Tag $tag)
     {
-        $this->store = $project;
+        $this->tag = $tag;
     }
 
     /**
@@ -20,7 +21,7 @@ class ProjectAPIController extends Controller
      */
     public function index()
     {
-        return $this->store->simplePaginate(200);
+        return $this->tag->simplePaginate(200);
     }
 
     /**
@@ -31,7 +32,7 @@ class ProjectAPIController extends Controller
      */
     public function store(Request $request)
     {
-        return $this->store->create($request->all());
+        return $this->tag->create($request->all());
     }
 
     /**
@@ -40,9 +41,9 @@ class ProjectAPIController extends Controller
      * @param  Project  $project
      * @return \Illuminate\Http\Response
      */
-    public function show(Project $project)
+    public function tag(Tag $tag)
     {
-        return $project;
+        return $tag;
     }
 
     /**
@@ -52,9 +53,9 @@ class ProjectAPIController extends Controller
      * @param  Project  $project
      * @return \Illuminate\Http\Response
      */
-    public function update(Request $request, Project $project)
+    public function update(Request $request, Tag $tag)
     {
-        return $project->update($request->all()); //Return true or false
+        return $tag->update($request->all()); //Return true or false
     }
 
     /**
@@ -63,8 +64,8 @@ class ProjectAPIController extends Controller
      * @param  Project  $project
      * @return \Illuminate\Http\Response
      */
-    public function destroy(Project $project)
+    public function destroy(Tag $tag)
     {
-        return $project->delete();
+        return $tag->delete();
     }
 }

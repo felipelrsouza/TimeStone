@@ -3,9 +3,6 @@
 @section('title', 'Projects')
 @section('content')
 
-
-
-
 <div id="project-create-container" class="col-md-6 offset-md-3">
     <br>
 <h2 class="text-center">Projects</h2>
@@ -33,7 +30,6 @@
 </div>
 </form>
 
-
 </div>
 
 </div>
@@ -42,6 +38,8 @@
 <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
 
 <!-- General Page JS -->
-<script src="/js/general_script.js"></script>
+@php
+echo '<script src="'.__DIR__.'+/js/general_script.js"></script>''
+@endphp
 
 @endsection
