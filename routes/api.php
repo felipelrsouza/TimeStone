@@ -18,8 +18,8 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
     return $request->user();
 });
 
-Route::apiResource('/projects', \App\Http\Controllers\ProjectAPIController::class);
+Route::apiResource('/projects', \App\Http\Controllers\API\ProjectAPIController::class);
 
-Route::apiResource('/activities', \App\Http\Controllers\ActivityAPIController::class);
+Route::apiResource('/activities', \App\Http\Controllers\API\ActivityAPIController::class);
 
-Route::apiResource('/tags', \App\Http\Controllers\TagAPIController::class);
+Route::apiResource('/tags', \App\Http\Controllers\API\TagAPIController::class);
