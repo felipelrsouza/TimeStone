@@ -11,7 +11,7 @@ const mix = require('laravel-mix');
  |
  */
 
-mix.js('resources/js/app.js', '../public_html/timestone/js')
-    .postCss('resources/css/app.css', '../public_html/timestone/css', [
+mix.js('resources/js/app.js', '../timestone/js')
+    .postCss('resources/css/app.css', '../timestone/css', [
         //
     ]);

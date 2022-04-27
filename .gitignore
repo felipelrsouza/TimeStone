@@ -1,6 +1,6 @@
 laravel-timestone/node_modules
-/public_html/timestone/hot
-/public_html/timestone/storage
+/timestone/hot
+/timestone/storage
 laravel-timestone/storage/*.key
 laravel-timestone/vendor
 laravel-timestone/.env
