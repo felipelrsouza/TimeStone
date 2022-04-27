@@ -136,24 +136,19 @@
 
           <div id="resume-table" class="resume-table">
           </div>
-          <?php
-          echo date('l jS \of F Y h:i:s A');
-          echo '<br>';
-          echo gmdate("Y-m-d\TH:i:s\Z");
-
-          ?>
         </div>
 
         <!-- Axios JS -->
         <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
 
         <!-- Tracker Page JS -->
-
+        
         <script>
+          //const serverTime = '2022-04-27T08:20:47Z';
           const apiURL ='<?php echo URL::to('/'); ?>'+'/api/';
           let serverTime = '<?php echo gmdate("Y-m-d\TH:i:s\Z") ?>';
         </script>
         
-        <script src="<?php echo URL::to('/'); ?>/js/tracker_script.js"></script>
+        <script src="<?php echo URL::to('/'); ?>/js/tracker_script2.js"></script>
 
         @endsection
