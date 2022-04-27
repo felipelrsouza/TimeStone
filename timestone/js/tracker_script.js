@@ -1,5 +1,4 @@
 ///// DATE AND TIME FUNCTIONS ////
-
 let userTime = new Date()
 let userTimeZone = userTime.getTimezoneOffset()
 
@@ -153,9 +152,9 @@ function createActivity(id) {
         project: [],
         tags: [],
         billable: 0,
-        timeList: [getNewDate()],
+        timeList: [date.toISOString()],
         isClosed: 0,
-        actDate: getNewDate().toISOString(),
+        actDate: date.toISOString(),
         weekStart: subtractDays(date.getDay(), date).toISOString(),
     };
 }
@@ -518,8 +517,10 @@ function changeSubactTime(id, arg) {
 
 //Start a new activity or new time
 function activityManager(id, arg) {
-    if (id == currentId) {
-        createActivity(id);
+
+    if (id == currentId + 1) {
+
+        createActivity(id)
 
         //Pass cache variable data to activity data
         actList[id]["title"] = document
@@ -556,12 +557,12 @@ function activityManager(id, arg) {
             .getElementsByClassName("activity-title")[0].value = "";
         document
             .getElementById("activity-row-id")
-            .getElementsByClassName("act-id-input")[0].value = currentId;
+            .getElementsByClassName("act-id-input")[0].value = (currentId+1);
 
         iconUpdate("creatorRow");
 
         //Post new activity to the database
-
+        
         postActivity(id);
 
         //Create row with activity data
@@ -570,9 +571,9 @@ function activityManager(id, arg) {
         iconUpdate(id);
     } else {
         //Only insert a new time
+
         actList[id]["timeList"].push(getNewDate().toISOString());
         putActivity(id);
-
         createSubRow(id);
         iconUpdate(id);
     }
@@ -897,7 +898,7 @@ function actionManager(arg) {
         id = arg.parentNode.id.replace("activity-row-", ""); // Activity row ID
 
         if (id == "id") {
-            // Activity insert row ID
+            // Activity inseractivityManagert row ID
             id = currentId + 1;
         }
     } else if (arg.parentNode.parentNode.id.includes("activity-table-")) {
@@ -1330,8 +1331,8 @@ let stopPassiveUpdate = 0;
 })();
 
 function recreateActivities(data) {
-    currentId = 0;
     for (var prop in data) {
+
         actList[data[prop]["id"]] = {
             title: data[prop]["title"],
             project: JSON.parse(data[prop]["project"]),
@@ -1481,7 +1482,7 @@ function recreateActivities(data) {
                     .getElementsByClassName("act-id-input")[0].value =
                     currentId;
             }
-    
+    }
     
 }
 
@@ -1536,7 +1537,7 @@ function recreateTags(data) {
 
 function getProject() {
     axios
-        .get(apiURL + "projects/")
+        .get(apiURL + "projects")
         .then((response) => {
             const data = response.data.data;
             recreateProjects(data);
@@ -1547,7 +1548,7 @@ function getProject() {
 getProject();
 
 function putProject(id) {
-    console.log(projList[id]);
+
     let arg = {
         title: projList[id]["title"],
         description: projList[id]["description"],
@@ -1565,7 +1566,7 @@ function putProject(id) {
 
 function getActivity() {
     axios
-        .get(apiURL + "activities/")
+        .get(apiURL + "activities")
         .then((response) => {
             let data = response.data.data;
             recreateActivities(data);
@@ -1576,8 +1577,9 @@ function getActivity() {
 getActivity();
 
 function postActivity(id) {
+    console.log(apiURL)
     axios
-        .post(apiURL + "activities/", {
+        .post(apiURL + "activities", {
             id: id,
             title: actList[id]["title"],
             project: JSON.stringify(actList[id]["project"]),
@@ -1589,7 +1591,7 @@ function postActivity(id) {
             weekStart: actList[id]["weekStart"],
         })
         .then((response) => {
-            //console.log("Atividade criada com sucesso");
+            console.log(response);
         })
         .catch((error) => console.log(error));
 }
@@ -1638,7 +1640,7 @@ function deleteActivity(id) {
 
 function getTag() {
     axios
-        .get(apiURL + "tags/")
+        .get(apiURL + "tags")
         .then((response) => {
             const data = response.data.data;
             recreateTags(data);
@@ -1647,4 +1649,3 @@ function getTag() {
 }
 
 getTag();
-
