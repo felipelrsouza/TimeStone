@@ -144,7 +144,6 @@
         <!-- Tracker Page JS -->
         
         <script>
-          //const serverTime = '2022-04-27T08:20:47Z';
           const apiURL ='<?php echo URL::to('/'); ?>'+'/api/';
           let serverTime = '<?php echo gmdate("Y-m-d\TH:i:s\Z") ?>';
         </script>
