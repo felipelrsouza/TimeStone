@@ -518,8 +518,15 @@ function changeSubactTime(id, arg) {
 
 //Start a new activity or new time
 function activityManager(id, arg) {
+<<<<<<< Updated upstream:public/js/tracker_script.js
+
+    if (id == currentId + 1) {
+
+        newActivity(id);
+=======
     if (id == currentId) {
         createActivity(id);
+>>>>>>> Stashed changes:timestone/js/tracker_script.js
 
         //Pass cache variable data to activity data
         actList[id]["title"] = document
@@ -1534,9 +1541,11 @@ function recreateTags(data) {
 
 //// CONNECTION WITH API ////
 
+const url = "http://127.0.0.1:8000/api/";
+
 function getProject() {
     axios
-        .get(apiURL + "projects/")
+        .get(url + "projects/")
         .then((response) => {
             const data = response.data.data;
             recreateProjects(data);
@@ -1554,7 +1563,7 @@ function putProject(id) {
         activities: JSON.stringify(projList[id]["activities"]),
     };
     axios
-        .put(apiURL + "projects/" + id, arg)
+        .put(url + "projects/" + id, arg)
         .then((response) => {
             response.data;
         })
@@ -1565,7 +1574,7 @@ function putProject(id) {
 
 function getActivity() {
     axios
-        .get(apiURL + "activities/")
+        .get(url + "activities/")
         .then((response) => {
             let data = response.data.data;
             recreateActivities(data);
@@ -1577,7 +1586,7 @@ getActivity();
 
 function postActivity(id) {
     axios
-        .post(apiURL + "activities/", {
+        .post(url + "activities/", {
             id: id,
             title: actList[id]["title"],
             project: JSON.stringify(actList[id]["project"]),
@@ -1608,7 +1617,7 @@ function putActivity(id) {
     };
 
     axios
-        .put(apiURL + "activities/" + id, arg)
+        .put(url + "activities/" + id, arg)
         .then((response) => {
             response.data;
         })
@@ -1629,7 +1638,7 @@ function deleteActivity(id) {
     document.location.reload();
 
     axios
-        .delete(apiURL + "activities/" + id)
+        .delete(url + "activities/" + id)
         .then((response) => console.log(response.data))
         .catch((error) => console.log(error));
 }
@@ -1638,7 +1647,7 @@ function deleteActivity(id) {
 
 function getTag() {
     axios
-        .get(apiURL + "tags/")
+        .get(url + "tags/")
         .then((response) => {
             const data = response.data.data;
             recreateTags(data);

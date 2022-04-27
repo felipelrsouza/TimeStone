@@ -142,12 +142,12 @@
         <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
 
         <!-- Tracker Page JS -->
-        
+
         <script>
           const apiURL ='<?php echo URL::to('/'); ?>'+'/api/';
           let serverTime = '<?php echo gmdate("Y-m-d\TH:i:s\Z") ?>';
         </script>
         
-        <script src="<?php echo URL::to('/'); ?>/js/tracker_script2.js"></script>
+        <script src="<?php echo URL::to('/'); ?>/js/tracker_script.js"></script>
 
         @endsection
