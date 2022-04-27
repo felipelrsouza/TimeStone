@@ -1,7 +1,12 @@
+# Dificulta acesso ao .htaccess
 <files ~ "^.*\.([Hh][Tt][Aa])">
 order allow,deny
 deny from all
 satisfy all
 </files>
 
+# Impede acesso aos diretórios.
 Options -Indexes
+
+# Acesso restrito!
+deny from all
