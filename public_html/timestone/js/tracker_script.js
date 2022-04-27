@@ -1519,11 +1519,9 @@ function recreateTags(data) {
 
 //// CONNECTION WITH API ////
 
-const url = "https://www.beluga.eng.br/timestone/api/";
-
 function getProject() {
     axios
-        .get(url + "projects")
+        .get(apiURL + "projects")
         .then((response) => {
             const data = response.data.data;
             recreateProjects(data);
@@ -1540,7 +1538,7 @@ function putProject(id) {
         activities: JSON.stringify(projList[id]["activities"]),
     };
     axios
-        .put(url + "projects/" + id, arg)
+        .put(apiURL + "projects/" + id, arg)
         .then((response) => {
            console.log(response.data);
         })
@@ -1551,7 +1549,7 @@ function putProject(id) {
 
 function getActivity() {
     axios
-        .get(url + "activities")
+        .get(apiURL + "activities")
         .then((response) => {
             let data = response.data.data;
             recreateActivities(data);
@@ -1563,7 +1561,7 @@ getActivity();
 
 function postActivity(id) {
     axios
-        .post(url + "activities", {
+        .post(apiURL + "activities", {
             id: id,
             title: actList[id]["title"],
             project: JSON.stringify(actList[id]["project"]),
@@ -1594,7 +1592,7 @@ function putActivity(id) {
     };
 
     axios
-        .put(url + "activities/" + id, arg)
+        .put(apiURL + "activities/" + id, arg)
         .then((response) => {
             response.data;
         })
@@ -1615,7 +1613,7 @@ function deleteActivity(id) {
     document.location.reload();
 
     axios
-        .delete(url + "activities/" + id)
+        .delete(apiURL + "activities/" + id)
         .then((response) => console.log(response.data))
         .catch((error) => console.log(error));
 }
@@ -1624,7 +1622,7 @@ function deleteActivity(id) {
 
 function getTag() {
     axios
-        .get(url + "tags")
+        .get(apiURL + "tags")
         .then((response) => {
             const data = response.data.data;
             recreateTags(data);

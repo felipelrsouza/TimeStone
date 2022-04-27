@@ -39,5 +39,6 @@
 <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
 
 <!-- General Page JS -->
-<script src="/js/general_script.js"></script>
+<script>const apiURL ='<?php echo URL::to('/'); ?>'+'/api/';</script>
+<script src="<?php echo URL::to('/'); ?>/js/general_script.js"></script>
 @endsection

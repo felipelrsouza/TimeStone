@@ -1,9 +1,7 @@
-const url = "http://127.0.0.1:8000/api/";
-
 function deleteProject(arg) {
     id = arg.getAttribute("data-id");
     axios
-        .delete(url + "projects/" + id)
+        .delete(apiURL + "projects/" + id)
         .then((response) => window.location.reload())
         .catch((error) => alert(error));
 }
@@ -11,7 +9,7 @@ function deleteProject(arg) {
 function deleteTag(arg) {
     id = arg.getAttribute("data-id");
     axios
-        .delete(url + "tags/" + id)
+        .delete(apiURL + "tags/" + id)
         .then((response) => window.location.reload())
         .catch((error) => alert(error));
 }

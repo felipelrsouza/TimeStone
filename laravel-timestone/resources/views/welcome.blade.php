@@ -150,11 +150,10 @@
         <!-- Tracker Page JS -->
 
         <script>
-          <?php 
-            echo 'let serverTime = "'.gmdate("Y-m-d\TH:i:s\Z").'"';
-          ?>
-
+          const apiURL ='<?php echo URL::to('/'); ?>'+'/api/';
+          let serverTime = '<?php echo gmdate("Y-m-d\TH:i:s\Z") ?>';
         </script>
-        <script src="./js/tracker_script.js"></script>
+        
+        <script src="<?php echo URL::to('/'); ?>/js/tracker_script.js"></script>
 
         @endsection
