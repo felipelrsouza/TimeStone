@@ -52,7 +52,7 @@ return [
     |
     */
 
-    'url' => env('APP_URL', 'http://localhost/projetos/Laravel/timestone/public_html/timestone/'),
+    'url' => env('APP_URL', 'http://localhost/projetos/timestone/timestone/'),
 
     'asset_url' => env('ASSET_URL', null),
 

@@ -1,19 +1,23 @@
-///// AUXILIARY DATE AND TIME FUNCTIONS ////
+///// DATE AND TIME FUNCTIONS ////
 
 let userTime = new Date()
+let userTimeZone = userTime.getTimezoneOffset()
 
-console.log(new Date())
+//To debug server time
+//let serverTime = (new Date((new Date()).setMinutes(userTime.getMinutes()+10))).toISOString()
 
+let trustedTime = 0
 let timeCorrector = new Array // 0 -> Year, 1 -> Month, 2 -> Date, 3 -> Hour, 4 -> Minutes, 5 -> Seconds.
 
 if(Math.abs(new Date(serverTime) - userTime)<5000){ //Timer do usuário é confiável
-
+    
     timeCorrector[0] = 0 //Year
     timeCorrector[1] = 0 //Month
     timeCorrector[2] = 0 //Date
     timeCorrector[3] = 0 //Hour
     timeCorrector[4] = 0 //Minutes
     timeCorrector[5] = 0 //Seconds
+    trustedTime = 1
 
 }else{ //Timer do usuário não é confiável
 
@@ -23,30 +27,28 @@ if(Math.abs(new Date(serverTime) - userTime)<5000){ //Timer do usuário é confi
     timeCorrector[3] = (parseInt(serverTime.slice(11,13))) - parseInt(userTime.toISOString().slice(11,13)) //Hour
     timeCorrector[4] = (parseInt(serverTime.slice(14,16))) - parseInt(userTime.toISOString().slice(14,16)) //Minutes
     timeCorrector[5] = (parseInt(serverTime.slice(17,19))) - parseInt(userTime.toISOString().slice(17,19)) //Seconds
+    trustedTime = 0
 }
 
 function getNewDate(){
 
-    console.log('newDate()func => '+ new Date())
+    if(trustedTime == 1){
+        return new Date()
+    }else{
 
-    let currentDate = new Date()
+    let currentDate = new Date().toISOString()
 
-    console.log('curentDate => '+currentDate)
-
-    console.log(timeCorrector)
-
-    let newDate = new Date(Date(
-        (currentDate.getFullYear()) + timeCorrector[0],
-        (currentDate.getMonth()) + timeCorrector[1],
-        (currentDate.getDate()) + timeCorrector[2],
-        (currentDate.getHours()) + timeCorrector[3],
-        (currentDate.getMinutes()) + timeCorrector[4],
-        (currentDate.getSeconds()) + timeCorrector[5]
+    let newDate = new Date(Date.UTC(
+        parseInt(currentDate.slice(0,4)) + timeCorrector[0],
+        parseInt(currentDate.slice(5,7)) -1 + timeCorrector[1],
+        parseInt(currentDate.slice(8,10)) + timeCorrector[2],
+        parseInt(currentDate.slice(11,13)) + timeCorrector[3],
+        parseInt(currentDate.slice(14,16)) + timeCorrector[4],
+        parseInt(currentDate.slice(17,19)) + timeCorrector[5]
     ))
 
-    console.log('newDate => '+newDate)
-
     return newDate
+    }
 }
 
 function addDays(numOfDays, date = new Date()) {
@@ -1123,6 +1125,10 @@ let stopPassiveUpdate = 0;
 !(function updateTimers() {
     setTimeout(updateTimers, 500); //Update every 0.5 second.
 
+    if(Object.keys(actList).length == 0){
+        return
+    }
+
     let nowTime = getNewDate();
 
     //Update activity timers
@@ -1333,6 +1339,7 @@ let stopPassiveUpdate = 0;
 })();
 
 function recreateActivities(data) {
+    currentId = 0;
     for (var prop in data) {
         actList[data[prop]["id"]] = {
             title: data[prop]["title"],
@@ -1345,13 +1352,6 @@ function recreateActivities(data) {
             weekStart: data[prop]["weekStart"],
         };
 
-        if (data[prop]["id"] >= currentId) {
-            currentId = parseInt(data[prop]["id"]) + 1;
-            document
-                .getElementById("activity-row-id")
-                .getElementsByClassName("act-id-input")[0].value = currentId;
-        }
-
         let actDate = actList[data[prop]["id"]]["actDate"];
 
         let actDateDate = parseInt(actDate.slice(8, 10)); //Date
@@ -1360,12 +1360,12 @@ function recreateActivities(data) {
 
         let actDateLimit = new Date(
             Date.UTC(
-                actDateYear + timeCorrector[0],
-                actDateMonth + timeCorrector[1],
-                actDateDate + timeCorrector[2],
-                18 + timeCorrector[3],
-                0 + timeCorrector[4],
-                0 + timeCorrector[5])
+                actDateYear,
+                actDateMonth,
+                actDateDate,
+                18 + (userTimeZone/60),
+                0,
+                0)
         );
 
         let actDateLast =
@@ -1379,12 +1379,12 @@ function recreateActivities(data) {
 
         actDateLast = new Date(
             Date.UTC(
-                actDateYear + timeCorrector[0],
-                actDateMonth + timeCorrector[1],
-                actDateDate + timeCorrector[2],
-                actDateLastHours + timeCorrector[3],
-                actDateLastMinutes + timeCorrector[4],
-                actDateLastSeconds + timeCorrector[5]
+                actDateYear,
+                actDateMonth,
+                actDateDate,
+                actDateLastHours,
+                actDateLastMinutes,
+                actDateLastSeconds
             )
         );
 
@@ -1400,31 +1400,34 @@ function recreateActivities(data) {
 
         let nowTimeLimit = new Date(
             Date.UTC(
-                nowTimeYear + timeCorrector[0],
-                nowTimeMonth + timeCorrector[1],
-                nowTimeDate + timeCorrector[2],
-                18 + timeCorrector[3],
-                0 + timeCorrector[4],
-                0 + timeCorrector[5]
+                nowTimeYear,
+                nowTimeMonth,
+                nowTimeDate,
+                18 + (userTimeZone/60),
+                0,
+                0
             )
         );
 
         let nowTimeStart = new Date(
             Date.UTC(
-                nowTimeYear + timeCorrector[0],
-                nowTimeMonth + timeCorrector[1],
-                nowTimeDate + timeCorrector[2],
-                0 + timeCorrector[3],
-                0 + timeCorrector[4],
-                0 + timeCorrector[5]
+                nowTimeYear,
+                nowTimeMonth,
+                nowTimeDate,
+                0 + (userTimeZone/60),
+                0,
+                0
             )
         );
 
         if (actList[data[prop]["id"]]["timeList"].length % 2 == 0) {
+
             if (actList[data[prop]["id"]]["isClosed"] == 0) {
+
                 //Se está pausado
-                {
+                
                     if (actDateLast > nowTimeStart && nowTime > nowTimeLimit) {
+
                         actList[data[prop]["id"]]["timeList"][
                             actList[data[prop]["id"]]["timeList"].length - 1
                         ] = nowTimeLimit;
@@ -1437,14 +1440,16 @@ function recreateActivities(data) {
                             actList[data[prop]["id"]]["timeList"].length - 1
                         ] = actDateLimit;
                         closeActivity(data[prop]["id"]);
+
                     } else if (
                         actDateLast < nowTimeStart &&
                         actList[data[prop]["id"]]["isClosed"] == 0
                     ) {
                         closeActivity(data[prop]["id"]);
                     }
-                }
+                
             }
+        }
 
             if (actList[data[prop]["id"]]["timeList"].length % 2) {
                 //Se está ativo
@@ -1461,11 +1466,20 @@ function recreateActivities(data) {
                     actDateLast < nowTimeStart &&
                     actList[data[prop]["id"]]["isClosed"] == 0
                 ) {
+
                     closeActivity(data[prop]["id"]);
                 }
             }
-        }
+
+            if (data[prop]["id"] >= currentId) {
+                currentId = parseInt(data[prop]["id"]) + 1;
+                document
+                    .getElementById("activity-row-id")
+                    .getElementsByClassName("act-id-input")[0].value =
+                    currentId;
+            }
     }
+    
 }
 
 function recreateProjects(data) {
