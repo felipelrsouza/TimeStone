@@ -18,7 +18,7 @@ class CreateActivitiesTable extends Migration
             $table->string('title');
             $table->string('project')->nullable();
             $table->string('tags')->nullable();
-            $table->boolean('billable');
+            $table->boolean('autoStop');
             $table->boolean('isClosed');
             $table->text('timeList');
             $table->string('actDate');

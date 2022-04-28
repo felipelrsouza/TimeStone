@@ -2,6 +2,10 @@
 let userTime = new Date()
 let userTimeZone = userTime.getTimezoneOffset()
 
+let abobora = "00:00:00"+userTime.toTimeString().slice(8,17)
+
+console.log(abobora)
+
 //To debug server time
 //let serverTime = (new Date((new Date()).setMinutes(userTime.getMinutes()+10))).toISOString()
 
@@ -151,7 +155,7 @@ function createActivity(id) {
         title: "",
         project: [],
         tags: [],
-        billable: 0,
+        autoStop: "00:00:00",
         timeList: [date.toISOString()],
         isClosed: 0,
         actDate: date.toISOString(),
@@ -164,7 +168,7 @@ let cache = {
     id: 1,
     project: [],
     tags: [],
-    billable: 0,
+    autoStop: "00:00:00"+userTime.toTimeString().slice(8,17),
     isClosed: 0,
 };
 
@@ -289,15 +293,15 @@ function iconUpdate(id) {
                 .classList.remove("btn-secondary");
         }
 
-        if (cache["billable"] == 0) {
+        if (cache["auto-stop"] == 0) {
             document
                 .getElementById("activity-row-id")
-                .getElementsByClassName("billable")[0]
+                .getElementsByClassName("auto-stop")[0]
                 .classList.remove("btn-secondary");
         } else {
             document
                 .getElementById("activity-row-id")
-                .getElementsByClassName("billable")[0]
+                .getElementsByClassName("auto-stop")[0]
                 .classList.add("btn-secondary");
         }
     } else {
@@ -325,15 +329,15 @@ function iconUpdate(id) {
                 .classList.remove("btn-secondary");
         }
 
-        if (actList[id]["billable"] == 0) {
+        if (actList[id]["auto-stop"] == 0) {
             document
                 .getElementById("activity-row-" + id)
-                .getElementsByClassName("billable")[0]
+                .getElementsByClassName("auto-stop")[0]
                 .classList.remove("btn-secondary");
         } else {
             document
                 .getElementById("activity-row-" + id)
-                .getElementsByClassName("billable")[0]
+                .getElementsByClassName("auto-stop")[0]
                 .classList.add("btn-secondary");
         }
 
@@ -375,7 +379,7 @@ function iconUpdate(id) {
                 .classList.add("disabled-btn");
             document
                 .getElementById("activity-row-" + id)
-                .getElementsByClassName("billable")[0]
+                .getElementsByClassName("auto-stop")[0]
                 .classList.add("disabled-btn");
             document
                 .getElementById("activity-row-" + id)
@@ -528,14 +532,14 @@ function activityManager(id, arg) {
             .getElementsByClassName("activity-title")[0].value;
         actList[id]["project"] = cache["project"];
         actList[id]["tags"] = cache["tags"];
-        actList[id]["billable"] = cache["billable"];
+        actList[id]["autoStop"] = cache["autoStop"];
         actList[id]["isClosed"] = 0;
 
         //Reset cache variable and update currentId
         cache = {
             project: [],
             tags: [],
-            billable: 0,
+            autoStop: 0,
             isClosed: 0,
         };
 
@@ -893,6 +897,8 @@ function createDateTitleResume(id) {
 let id;
 
 function actionManager(arg) {
+    
+
     //Get ID from differents elements
     if (arg.parentNode.id.includes("activity-row-")) {
         id = arg.parentNode.id.replace("activity-row-", ""); // Activity row ID
@@ -975,25 +981,52 @@ function actionManager(arg) {
             tagsManager(id, tagId, arg);
 
             break;
-        case arg.getAttribute("data-type").includes("billable"): //If is billable
-            if (!actList[id]) {
-                //If activity hasnt been created, set in cache variable.
-                if (cache["billable"] == 0) {
-                    cache["billable"] = 1;
-                } else {
-                    cache["billable"] = 0;
+        case arg.getAttribute("data-type").includes("auto-stop"): //If is to set an auto stop time
+            // if (!actList[id]) {
+                if(arg.getAttribute("data-action").includes("open-modal")){
+                document.getElementById('auto-stop-modal').getElementsByClassName('btn')[1].setAttribute('act-id',id)
+                
+                    if(id == currentId +1){
+                        //verificar se gmt é igual
+                        document.getElementById('auto-stop-time').value = cache['autoStop'].slice(0,8)
+
+                    }else{
+
+                        document.getElementById('auto-stop-time').value = actList['autoStop'].slice(0,8)
+
+                    }             
                 }
-                iconUpdate("creatorRow");
-            } else {
-                //If activity has been created, set in the activity object.
-                if (actList[id]["billable"] == 0) {
-                    actList[id]["billable"] = 1;
-                } else {
-                    actList[id]["billable"] = 0;
+                if(arg.getAttribute("data-action").includes("new-auto-stop")){
+                    id = arg.getAttribute("act-id")
+
+                    if(id == currentId +1){
+
+                        cache['autoStop'] = document.getElementById('auto-stop-time').value + userTime.toTimeString().slice(8,17)
+
+                    }else{
+
+                        actList['autoStop'] = document.getElementById('auto-stop-time').value + userTime.toTimeString().slice(8,17)
+
+                    }     
                 }
-                putActivity(id);
-                iconUpdate(id);
-            }
+
+            //     //If activity hasnt been created, set in cache variable.
+            //     if (cache["autoStop"] == 0) {
+            //         cache["autoStop"] = 1;
+            //     } else {
+            //         cache["autoStop"] = 0;
+            //     }
+            //     iconUpdate("creatorRow");
+            // } else {
+            //     //If activity has been created, set in the activity object.
+            //     if (actList[id]["autoStop"] == 0) {
+            //         actList[id]["autoStop"] = 1;
+            //     } else {
+            //         actList[id]["autoStop"] = 0;
+            //     }
+            //     putActivity(id);
+            //     iconUpdate(id);
+            // }
             break;
         case arg.getAttribute("data-type").includes("ctrl-btn"): //Start the activity manager
             if (id == currentId + 1) {
@@ -1337,82 +1370,42 @@ function recreateActivities(data) {
             title: data[prop]["title"],
             project: JSON.parse(data[prop]["project"]),
             tags: JSON.parse(data[prop]["tags"]),
-            billable: data[prop]["billable"],
+            autoStop: data[prop]["autoStop"],
             isClosed: data[prop]["isClosed"],
             timeList: JSON.parse(data[prop]["timeList"]),
             actDate: data[prop]["actDate"],
             weekStart: data[prop]["weekStart"],
         };
 
-        let actDate = actList[data[prop]["id"]]["actDate"];
+        //Dates for activity
 
-        let actDateDate = parseInt(actDate.slice(8, 10)); //Date
-        let actDateMonth = parseInt(actDate.slice(5, 7)) - 1; //Month
-        let actDateYear = parseInt(actDate.slice(0, 4)); //Year
+        let actDate = new Date(actList[data[prop]["id"]]["timeList"][0]);
 
-        let actDateLimit = new Date(
-            Date.UTC(
-                actDateYear,
-                actDateMonth,
-                actDateDate,
-                18 + (userTimeZone/60),
-                0,
-                0)
-        );
+        let actDateLimit = new Date(actList[data[prop]["id"]]["timeList"][0])        
+        actDateLimit.setHours(18)
+        actDateLimit.setMinutes(0)
+        actDateLimit.setSeconds(0)    
+        console.log()
+        let actDateLast = new Date(actList[data[prop]["id"]]["timeList"][actList[data[prop]["id"]]["timeList"].length - 1]);
+          
+        //Dates for check user moment
+        let thisDayTime = getNewDate();
 
-        console.log('actDateLimit: '+actDateLimit)
+        let thisDayTimeLimit = new Date(thisDayTime.toISOString())
+        thisDayTimeLimit.setHours(18)
+        thisDayTimeLimit.setMinutes(0)
+        thisDayTimeLimit.setSeconds(0)
 
-        let actDateLast =
-            actList[data[prop]["id"]]["timeList"][
-                actList[data[prop]["id"]]["timeList"].length - 1
-            ];
-
-        let actDateLastHours = parseInt(actDateLast.slice(0, 2)); //hours
-        let actDateLastMinutes = parseInt(actDateLast.slice(3, 5)); //minutes
-        let actDateLastSeconds = parseInt(actDateLast.slice(6, 8)); //seconds
-
-        actDateLast = new Date(
-            Date.UTC(
-                actDateYear,
-                actDateMonth,
-                actDateDate,
-                actDateLastHours,
-                actDateLastMinutes,
-                actDateLastSeconds
-            )
-        );
+        let thisDayTimeStart = new Date(thisDayTime.toISOString())
+        thisDayTimeStart.setHours(0)
+        thisDayTimeStart.setMinutes(0)
+        thisDayTimeStart.setSeconds(0)
 
         createRow(data[prop]["id"], actDate);
         createSubRow(data[prop]["id"]);
 
-        let nowTime = getNewDate();
-        let nowTimeString = nowTime.toISOString();
-
-        let nowTimeDate = parseInt(nowTimeString.slice(8, 10)); //Date
-        let nowTimeMonth = parseInt(nowTimeString.slice(5, 7)) - 1; //Month
-        let nowTimeYear = parseInt(nowTimeString.slice(0, 4)); //Year
-
-        let nowTimeLimit = new Date(
-            Date.UTC(
-                nowTimeYear,
-                nowTimeMonth,
-                nowTimeDate,
-                18 + (userTimeZone/60),
-                0,
-                0
-            )
-        );
-
-        let nowTimeStart = new Date(
-            Date.UTC(
-                nowTimeYear,
-                nowTimeMonth,
-                nowTimeDate,
-                0 + (userTimeZone/60),
-                0,
-                0
-            )
-        );
+        console.log(actList[data[prop]["id"]]["timeList"].length)
+        console.log(actList[data[prop]["id"]]["timeList"].length % 2)
 
         if (actList[data[prop]["id"]]["timeList"].length % 2 == 0) {
             console.log('A0')
@@ -1420,20 +1413,20 @@ function recreateActivities(data) {
                 console.log('A1')
                 //Se está pausado
                 
-                    if (actDateLast > nowTimeStart && nowTime > nowTimeLimit) {
+                    if (actDateLast > thisDayTimeStart && nowTime > thisDayTimeLimit) {
 
                         console.log('A2')
-                        actList[data[prop]["id"]]["timeList"][
-                            actList[data[prop]["id"]]["timeList"].length - 1
-                        ] = nowTimeLimit;
+                        
+                        actList[data[prop]["id"]]["timeList"][actList[data[prop]["id"]]["timeList"].length - 1] = nowTimeLimit.toISOString();
                         closeActivity(data[prop]["id"]);
+
                     } else if (
-                        actDateLast < nowTimeStart ||
+                        actDateLast < thisDayTimeStart ||
                         actDateLast > actDateLimit
                     ) {
                         console.log('A3')
                         console.log('actDateLast: '+actDateLast)
-                        console.log('nowTimeStart: '+nowTimeStart)
+                        console.log('thisDayTimeStart: '+thisDayTimeStart)
                         console.log('actDateLimit: '+actDateLimit)
 
                         actList[data[prop]["id"]]["timeList"][
@@ -1442,7 +1435,7 @@ function recreateActivities(data) {
                         closeActivity(data[prop]["id"]);
 
                     } else if (
-                        actDateLast < nowTimeStart &&
+                        actDateLast < thisDayTimeStart &&
                         actList[data[prop]["id"]]["isClosed"] == 0
                     ) {
                         console.log('A4')
@@ -1455,23 +1448,26 @@ function recreateActivities(data) {
             if (actList[data[prop]["id"]]["timeList"].length % 2) {
                 console.log('B0')
                 //Se está ativo
-                if (actDateLast > nowTimeStart && nowTime > nowTimeLimit) {
+                console.log(actDateLast)
+                if (actDateLast > thisDayTimeStart && thisDayTime > thisDayTimeLimit) {
                     console.log('B1')
-                    actList[data[prop]["id"]]["timeList"].push(nowTimeLimit);
+                    actList[data[prop]["id"]]["timeList"].push(thisDayTimeLimit);
                     closeActivity(data[prop]["id"]);
                 } else if (
-                    actDateLast < nowTimeStart ||
+                    actDateLast < thisDayTimeStart ||
                     actDateLast > actDateLimit
                 ) {
-                    console.log('B1')
+                    console.log('B2')
                     actList[data[prop]["id"]]["timeList"].push(actDateLimit);
                     closeActivity(data[prop]["id"]);
                 } else if (
-                    actDateLast < nowTimeStart &&
+                    actDateLast < thisDayTimeStart &&
                     actList[data[prop]["id"]]["isClosed"] == 0
                 ) {
-                    console.log('B2')
+                    console.log('B3')
                     closeActivity(data[prop]["id"]);
+                }else{
+                    console.log('Error recreating activity! ID='+data[prop]["id"])
                 }
             }
 
@@ -1482,6 +1478,7 @@ function recreateActivities(data) {
                     .getElementsByClassName("act-id-input")[0].value =
                     currentId;
             }
+
     }
     
 }
@@ -1584,7 +1581,7 @@ function postActivity(id) {
             title: actList[id]["title"],
             project: JSON.stringify(actList[id]["project"]),
             tags: JSON.stringify(actList[id]["tags"]),
-            billable: actList[id]["billable"],
+            autoStop: actList[id]["autoStop"],
             isClosed: actList[id]["isClosed"],
             timeList: JSON.stringify(actList[id]["timeList"]),
             actDate: actList[id]["actDate"],
@@ -1602,7 +1599,7 @@ function putActivity(id) {
         title: actList[id]["title"],
         project: JSON.stringify(actList[id]["project"]),
         tags: JSON.stringify(actList[id]["tags"]),
-        billable: actList[id]["billable"],
+        autoStop: actList[id]["autoStop"],
         isClosed: actList[id]["isClosed"],
         timeList: JSON.stringify(actList[id]["timeList"]),
         actDate: actList[id]["actDate"],
