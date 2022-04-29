@@ -1,11 +1,79 @@
 ///// DATE AND TIME FUNCTIONS ////
 let userTime = new Date()
-let userTimeZone = userTime.getTimezoneOffset()
 
-let abobora = "00:00:00"+userTime.toTimeString().slice(8,17)
+function showAlert(msg){
+    if(msg == null){
+        return
+    }
+        document.getElementById('alert').innerText = msg
+        document.getElementById('alert').classList.add("visible-alert")
+        document.getElementById('alert').classList.remove("hidden-alert")
 
-console.log(abobora)
+        setTimeout(() => {
 
+        document.getElementById('alert').classList.remove("visible-alert")
+        document.getElementById('alert').classList.add("hidden-alert")
+        }
+        , 2750)   
+}
+
+function autoCloseActivity(id, delay){
+    let actDateLimit
+    if(typeof(actList[id]) == 'object'){
+        actDateLimit = new Date(actList[id]["timeList"][0])   
+
+        actDateLimit.setHours(actList[id]["autoStop"].slice(0,2)) //activity limit hour
+        actDateLimit.setMinutes(actList[id]["autoStop"].slice(3,5)) //activity limit minutes
+        actDateLimit.setSeconds(actList[id]["autoStop"].slice(6,8)) //activity limit seconds
+
+        if(delay == null){
+            let nowTime = getNewDate();
+            autoCloseActivity(id, actDateLimit - nowTime)
+            return
+        }
+
+    }else{
+        return
+    }
+ 
+    setTimeout(() => {
+
+        nowTime = getNewDate();
+
+        if(nowTime >= actDateLimit){
+            actList[id]["timeList"].push(actDateLimit);
+            closeActivity(id);
+
+        }else{
+            autoCloseActivity(id, actDateLimit - nowTime)
+        }     
+      }, delay)
+}
+
+function getTimeZone(time){
+    let gmtHours = parseInt(time.toTimeString().slice(13,15)) // Horas
+    let gmtMinutes = parseInt(time.toTimeString().slice(15,17)) // minutos
+
+    if(userTime.toTimeString().indexOf('+')){
+
+       TimeDiffMin = -(gmtHours*60 + gmtMinutes)
+       return TimeDiffMin
+
+   }else if(userTime.toTimeString().indexOf('-')){
+
+       TimeDiffMin = +(gmtHours*60 + gmtMinutes)
+       return TimeDiffMin
+
+   }else{
+
+       showAlert('Houve um erro ao obter o tempo')
+       return 0
+       
+   }
+}
+
+let userTimeZone = getTimeZone(userTime)
+  
 //To debug server time
 //let serverTime = (new Date((new Date()).setMinutes(userTime.getMinutes()+10))).toISOString()
 
@@ -155,7 +223,7 @@ function createActivity(id) {
         title: "",
         project: [],
         tags: [],
-        autoStop: "00:00:00",
+        autoStop: "23:59:00"+userTime.toTimeString().slice(8,17),
         timeList: [date.toISOString()],
         isClosed: 0,
         actDate: date.toISOString(),
@@ -168,7 +236,7 @@ let cache = {
     id: 1,
     project: [],
     tags: [],
-    autoStop: "00:00:00"+userTime.toTimeString().slice(8,17),
+    autoStop: "23:59:00"+userTime.toTimeString().slice(8,17),
     isClosed: 0,
 };
 
@@ -183,18 +251,16 @@ function projectsManager(id, projectId, arg) {
             removeItemOnce(actList[id]["project"], projectId);
             removeItemOnce(projList[projectId]["activities"], id);
             arg.classList.remove("selected");
-            putActivity(id);
+            putActivity(id, 'Activity '+id+' is no longer part of the project.');
             putProject(projectId);
             iconUpdate(id);
-            console.log(projList);
         } else {
-            console.log(projList[projectId]);
             actList[id]["project"].push(projectId);
             projList[projectId]["activities"].push(id);
 
             arg.classList.add("selected");
 
-            putActivity(id);
+            putActivity(id, 'Activity '+id+' is now part of the project');
             putProject(projectId);
 
             iconUpdate(id);
@@ -221,12 +287,12 @@ function tagsManager(id, tagId, arg) {
         if (actList[id]["tags"].includes(tagId)) {
             removeItemOnce(actList[id]["tags"], tagId);
             arg.classList.remove("selected");
-            putActivity(id);
+            putActivity(id, 'Tag removed.');
             iconUpdate(id);
         } else {
             actList[id]["tags"].push(tagId);
             arg.classList.add("selected");
-            putActivity(id);
+            putActivity(id, 'Tag inserted.');
             iconUpdate(id);
         }
     } else {
@@ -253,13 +319,13 @@ function closeActivity(id, arg) {
         }
 
         actList[id]["isClosed"] = 1;
-        putActivity(id);
+        putActivity(id, 'Done.');
         iconUpdate(id);
 
         document.getElementById("activity-table-" + id).innerHTML = "";
         createSubRow(id);
     } else {
-        alert("Unable to reactivate activity.");
+        showAlert("Unable to reactivate activity.");
     }
 }
 
@@ -293,17 +359,17 @@ function iconUpdate(id) {
                 .classList.remove("btn-secondary");
         }
 
-        if (cache["auto-stop"] == 0) {
+        if (cache["autoStop"].includes('23:59:00')) { 
             document
                 .getElementById("activity-row-id")
                 .getElementsByClassName("auto-stop")[0]
-                .classList.remove("btn-secondary");
-        } else {
+                .classList.remove("btn-secondary");     
+            } else {
             document
                 .getElementById("activity-row-id")
                 .getElementsByClassName("auto-stop")[0]
                 .classList.add("btn-secondary");
-        }
+            }
     } else {
         if (actList[id]["project"].length > 0) {
             document
@@ -328,8 +394,7 @@ function iconUpdate(id) {
                 .getElementsByClassName("tags")[0]
                 .classList.remove("btn-secondary");
         }
-
-        if (actList[id]["auto-stop"] == 0) {
+        if (actList[id]["autoStop"].includes('23:59:00')) {
             document
                 .getElementById("activity-row-" + id)
                 .getElementsByClassName("auto-stop")[0]
@@ -451,9 +516,12 @@ function changeSubactTime(id, arg) {
     let endTimeIndex = startTimeIndex + 1; //Index of end time
 
     //Current sub-activity time
-    let actDate = parseInt(actList[id]["actDate"].slice(8, 10)); //dia
-    let actMonth = parseInt(actList[id]["actDate"].slice(5, 7)) - 1; //mes
-    let actYear = parseInt(actList[id]["actDate"].slice(0, 4)); //ano
+
+    let actDateGMT = getTimeZone(new Date(actList[id]['timeList'][0]))
+
+    let actDate = parseInt(actList[id]["timeList"][0].slice(8, 10)); //dia
+    let actMonth = parseInt(actList[id]["timeList"][0].slice(5, 7)) - 1; //mes
+    let actYear = parseInt(actList[id]["timeList"][0].slice(0, 4)); //ano
 
     let userStartTime =
         arg.parentNode.getElementsByClassName("start-time")[0].value;
@@ -468,7 +536,7 @@ function changeSubactTime(id, arg) {
             actMonth + timeCorrector[1],
             actDate + timeCorrector[2],
             startHours + timeCorrector[3],
-            startMinutes + timeCorrector[4],
+            startMinutes + timeCorrector[4] - actDateGMT,
             startSeconds + timeCorrector[5]
         )
     );
@@ -486,27 +554,25 @@ function changeSubactTime(id, arg) {
             actMonth + timeCorrector[1],
             actDate + timeCorrector[2],
             endHours + timeCorrector[3],
-            endMinutes + timeCorrector[4],
+            endMinutes + timeCorrector[4] - actDateGMT,
             endSeconds + timeCorrector[5]
         )
-    );
+    );    
 
-    let limitTime = new Date(
-        Date.UTC(
-            actYear + timeCorrector[0],
-            actMonth + timeCorrector[1],
-            actDate + timeCorrector[2],
-            18 + timeCorrector[3],
-            00 + timeCorrector[4],
-            01 + timeCorrector[5])
-    );
+    let actDateLimit = new Date(actList[id]["timeList"][0])        
+    actDateLimit.setHours(actList[id]["autoStop"].slice(0,2)) //activity limit hour
+    actDateLimit.setMinutes(parseInt(actList[id]["autoStop"].slice(3,5))) //activity limit minutes
+    actDateLimit.setSeconds(actList[id]["autoStop"].slice(6,8)) //activity limit seconds
 
     if (startDateTime > endDateTime) {
-        alert("Error! End time is greater than start time.");
-    } else if (startDateTime > limitTime || endDateTime > limitTime) {
-        alert("Error! Time is past 18h00.");
+        showAlert("Error! End time is greater than start time.");
+        return
+    } else if (startDateTime > actDateLimit || endDateTime > actDateLimit) {
+        showAlert("Error! Time is past activity limit.");
+        return
     } else if (startDateTime > nowTime || endDateTime > nowTime) {
-        alert("Error! Time is in the future.");
+        showAlert("Error! Time is in the future.");
+        return
     } else {
         actList[id]["timeList"][startTimeIndex] = startDateTime;
         if ([endTimeIndex] in actList[id]["timeList"]) {
@@ -514,7 +580,7 @@ function changeSubactTime(id, arg) {
         } else {
             actList[id]["timeList"].push(endDateTime);
         }
-        putActivity(id);
+        putActivity(id, 'Done.');
         iconUpdate(id);
     }
 }
@@ -539,7 +605,7 @@ function activityManager(id, arg) {
         cache = {
             project: [],
             tags: [],
-            autoStop: 0,
+            autoStop: "23:59:00"+userTime.toTimeString().slice(8,17),
             isClosed: 0,
         };
 
@@ -567,11 +633,12 @@ function activityManager(id, arg) {
 
         //Post new activity to the database
         
-        postActivity(id);
+        postActivity(id,'Activity '+id+' created.');
 
         //Create row with activity data
         createRow(id, arg);
         createSubRow(id);
+        autoCloseActivity(id)
         iconUpdate(id);
     } else {
         //Only insert a new time
@@ -938,11 +1005,11 @@ function actionManager(arg) {
             if (id == currentId + 1) {
                 cache["title"] = arg.value;
             } else if (actList[id]["isClosed"] == 1) {
-                alert("Activity is closed");
+                showAlert("Activity is closed.");
             } else {
                 if (arg.value) {
                     actList[id]["title"] = arg.value;
-                    putActivity(id);
+                    putActivity(id)                  
                 }
             }
             break;
@@ -951,7 +1018,7 @@ function actionManager(arg) {
                 arg.parentNode.getElementsByClassName("act-id-input")[0].value;
 
             if (newId in actList) {
-                alert("Error! ID already in use.");
+                showAlert("Error! ID already in use.");
             } else {
                 if (id in actList) {
                     actList[newId] = actList[id];
@@ -965,7 +1032,7 @@ function actionManager(arg) {
                         }
                     }
                     deleteActivity(id);
-                    postActivity(newId);
+                    postActivity(newId,'Activity ID updated.');
                 } else {
                     cache[id] = newId;
                 }
@@ -982,17 +1049,17 @@ function actionManager(arg) {
 
             break;
         case arg.getAttribute("data-type").includes("auto-stop"): //If is to set an auto stop time
-            // if (!actList[id]) {
                 if(arg.getAttribute("data-action").includes("open-modal")){
+                //Insert activity id in modal
                 document.getElementById('auto-stop-modal').getElementsByClassName('btn')[1].setAttribute('act-id',id)
-                
-                    if(id == currentId +1){
-                        //verificar se gmt é igual
+                    
+                    if(id == currentId +1){ // If activity doesnt exists
+                        //verificar se gmt é igual  
                         document.getElementById('auto-stop-time').value = cache['autoStop'].slice(0,8)
 
-                    }else{
+                    }else{ // If activity exists
 
-                        document.getElementById('auto-stop-time').value = actList['autoStop'].slice(0,8)
+                        document.getElementById('auto-stop-time').value = actList[id]['autoStop'].slice(0,8)
 
                     }             
                 }
@@ -1002,38 +1069,23 @@ function actionManager(arg) {
                     if(id == currentId +1){
 
                         cache['autoStop'] = document.getElementById('auto-stop-time').value + userTime.toTimeString().slice(8,17)
+                        iconUpdate("creatorRow")
 
                     }else{
 
-                        actList['autoStop'] = document.getElementById('auto-stop-time').value + userTime.toTimeString().slice(8,17)
-
+                        actList[id]['autoStop'] = document.getElementById('auto-stop-time').value + userTime.toTimeString().slice(8,17)
+                        putActivity(id)
+                        autoCloseActivity(id)
+                        iconUpdate(id)
                     }     
                 }
-
-            //     //If activity hasnt been created, set in cache variable.
-            //     if (cache["autoStop"] == 0) {
-            //         cache["autoStop"] = 1;
-            //     } else {
-            //         cache["autoStop"] = 0;
-            //     }
-            //     iconUpdate("creatorRow");
-            // } else {
-            //     //If activity has been created, set in the activity object.
-            //     if (actList[id]["autoStop"] == 0) {
-            //         actList[id]["autoStop"] = 1;
-            //     } else {
-            //         actList[id]["autoStop"] = 0;
-            //     }
-            //     putActivity(id);
-            //     iconUpdate(id);
-            // }
             break;
         case arg.getAttribute("data-type").includes("ctrl-btn"): //Start the activity manager
             if (id == currentId + 1) {
                 //Create, start or pause an activity
                 let input = arg.parentNode.parentNode.getElementsByClassName('activity-title')[0]
                 if(input.value == ""){
-                    alert('Error! Activity must have a title.')
+                    showAlert('Error! Activity must have a title.')
                     return
                 }
 
@@ -1054,10 +1106,10 @@ function actionManager(arg) {
                         createSubRow(id);
                         iconUpdate(id);
                     } else {
-                        alert("Enter a title");
+                        showAlert("Enter a title.");
                     }
                 } else {
-                    alert("Activity is closed");
+                    showAlert("Activity is closed.");
                 }
             }
 
@@ -1100,8 +1152,8 @@ function actionManager(arg) {
                 createSubRow(id);
                 putActivity(id);
             } else {
-                alert(
-                    "Error! This cannot be deleted, delete the activity instead"
+                showAlert(
+                    "Error! This cannot be deleted, delete the activity instead."
                 );
             }
             break;
@@ -1130,7 +1182,7 @@ function actionManager(arg) {
             let userWeekStart = subtractDays(userDate.getDay(), userDate);
 
             if (userDate > today) {
-                alert("Error! Date is in the future.");
+                showAlert("Error! Date is in the future.");
             } else {
                 actList[id]["actDate"] = userDate.toISOString();
                 actList[id]["weekStart"] = userWeekStart.toISOString();
@@ -1146,7 +1198,7 @@ function actionManager(arg) {
 
             break;
         default:
-            console.log("Houve um erro. Contate o administrador do site.");
+            showAlert("Houve um erro. Contate o administrador do site.");
     }
 }
 
@@ -1154,12 +1206,14 @@ let stopPassiveUpdate = 0;
 
 //// TIMER UPDATER ////
 
-!(function updateTimers() {
-    setTimeout(updateTimers, 500); //Update every 0.5 second.
+!(function updateTimers() {  
 
     if(Object.keys(actList).length == 0){
+        setTimeout(updateTimers, 1000); //Update every 0.5 second.
         return
     }
+
+    setTimeout(updateTimers, 500); //Update every 0.5 second.
 
     let nowTime = getNewDate();
 
@@ -1377,110 +1431,52 @@ function recreateActivities(data) {
             weekStart: data[prop]["weekStart"],
         };
 
-        //Dates for activity
+        //Activity limit time
 
         let actDate = new Date(actList[data[prop]["id"]]["timeList"][0]);
+        let actDateGMT = getTimeZone(actDate)
 
         let actDateLimit = new Date(actList[data[prop]["id"]]["timeList"][0])        
-        actDateLimit.setHours(18)
-        actDateLimit.setMinutes(0)
-        actDateLimit.setSeconds(0)    
-        console.log()
-        let actDateLast = new Date(actList[data[prop]["id"]]["timeList"][actList[data[prop]["id"]]["timeList"].length - 1]);
-          
-        //Dates for check user moment
-        let thisDayTime = getNewDate();
+        actDateLimit.setHours(actList[data[prop]["id"]]["autoStop"].slice(0,2)) //activity limit hour
+        actDateLimit.setMinutes(parseInt(actList[data[prop]["id"]]["autoStop"].slice(3,5)) - actDateGMT) //activity limit minutes
+        actDateLimit.setSeconds(actList[data[prop]["id"]]["autoStop"].slice(6,8)) //activity limit seconds
 
-        let thisDayTimeLimit = new Date(thisDayTime.toISOString())
-        thisDayTimeLimit.setHours(18)
-        thisDayTimeLimit.setMinutes(0)
-        thisDayTimeLimit.setSeconds(0)
-
-        let thisDayTimeStart = new Date(thisDayTime.toISOString())
-        thisDayTimeStart.setHours(0)
-        thisDayTimeStart.setMinutes(0)
-        thisDayTimeStart.setSeconds(0)
+        //User time
+        let nowTime = getNewDate();
 
         createRow(data[prop]["id"], actDate);
         createSubRow(data[prop]["id"]);
 
-        console.log(actList[data[prop]["id"]]["timeList"].length)
-        console.log(actList[data[prop]["id"]]["timeList"].length % 2)
-
-        if (actList[data[prop]["id"]]["timeList"].length % 2 == 0) {
-            console.log('A0')
-            if (actList[data[prop]["id"]]["isClosed"] == 0) {
-                console.log('A1')
-                //Se está pausado
+        //Se atividade está pausada e aberta
+        if (actList[data[prop]["id"]]["timeList"].length % 2 == 0 && actList[data[prop]["id"]]["isClosed"] == 0) {             
+            if (nowTime >= actDateLimit) {  
                 
-                    if (actDateLast > thisDayTimeStart && nowTime > thisDayTimeLimit) {
-
-                        console.log('A2')
-                        
-                        actList[data[prop]["id"]]["timeList"][actList[data[prop]["id"]]["timeList"].length - 1] = nowTimeLimit.toISOString();
-                        closeActivity(data[prop]["id"]);
-
-                    } else if (
-                        actDateLast < thisDayTimeStart ||
-                        actDateLast > actDateLimit
-                    ) {
-                        console.log('A3')
-                        console.log('actDateLast: '+actDateLast)
-                        console.log('thisDayTimeStart: '+thisDayTimeStart)
-                        console.log('actDateLimit: '+actDateLimit)
-
-                        actList[data[prop]["id"]]["timeList"][
-                            actList[data[prop]["id"]]["timeList"].length - 1
-                        ] = actDateLimit;
-                        closeActivity(data[prop]["id"]);
-
-                    } else if (
-                        actDateLast < thisDayTimeStart &&
-                        actList[data[prop]["id"]]["isClosed"] == 0
-                    ) {
-                        console.log('A4')
-                        closeActivity(data[prop]["id"]);
-                    }
-                
-            }
+                actList[data[prop]["id"]]["timeList"][actList[data[prop]["id"]]["timeList"].length - 1] = actDateLimit.toISOString();
+                closeActivity(data[prop]["id"]);
+            }else{
+                autoCloseActivity(data[prop]["id"], actDateLimit - nowTime)
+            }                            
         }
 
-            if (actList[data[prop]["id"]]["timeList"].length % 2) {
-                console.log('B0')
-                //Se está ativo
-                console.log(actDateLast)
-                if (actDateLast > thisDayTimeStart && thisDayTime > thisDayTimeLimit) {
-                    console.log('B1')
-                    actList[data[prop]["id"]]["timeList"].push(thisDayTimeLimit);
-                    closeActivity(data[prop]["id"]);
-                } else if (
-                    actDateLast < thisDayTimeStart ||
-                    actDateLast > actDateLimit
-                ) {
-                    console.log('B2')
-                    actList[data[prop]["id"]]["timeList"].push(actDateLimit);
-                    closeActivity(data[prop]["id"]);
-                } else if (
-                    actDateLast < thisDayTimeStart &&
-                    actList[data[prop]["id"]]["isClosed"] == 0
-                ) {
-                    console.log('B3')
-                    closeActivity(data[prop]["id"]);
-                }else{
-                    console.log('Error recreating activity! ID='+data[prop]["id"])
-                }
+        //Se atividade está ativa
+        if (actList[data[prop]["id"]]["timeList"].length % 2) { 
+            if (nowTime >= actDateLimit) {
+                actList[data[prop]["id"]]["timeList"].push(actDateLimit);
+                closeActivity(data[prop]["id"]);
+            } else{
+                autoCloseActivity(data[prop]["id"], actDateLimit - nowTime)
             }
+        }
+        
+        if (data[prop]["id"] >= currentId) {
+            currentId = parseInt(data[prop]["id"]) + 1;
+            document
+                .getElementById("activity-row-id")
+                .getElementsByClassName("act-id-input")[0].value =
+                currentId;
+        }
 
-            if (data[prop]["id"] >= currentId) {
-                currentId = parseInt(data[prop]["id"]) + 1;
-                document
-                    .getElementById("activity-row-id")
-                    .getElementsByClassName("act-id-input")[0].value =
-                    currentId;
-            }
-
-    }
-    
+    }    
 }
 
 function recreateProjects(data) {
@@ -1539,7 +1535,7 @@ function getProject() {
             const data = response.data.data;
             recreateProjects(data);
         })
-        .catch((error) => console.log(error));
+        .catch((error) => showAlert("Error getting data from server."));
 }
 
 getProject();
@@ -1554,9 +1550,9 @@ function putProject(id) {
     axios
         .put(apiURL + "projects/" + id, arg)
         .then((response) => {
-            response.data;
+            showAlert("Project "+id+" updated.");
         })
-        .catch((error) => console.log(error));
+        .catch((error) => showAlert("Error entering data on the server."));
 }
 
 // Activities
@@ -1568,13 +1564,12 @@ function getActivity() {
             let data = response.data.data;
             recreateActivities(data);
         })
-        .catch((error) => console.log(error));
+        .catch((error) => showAlert("Error getting data from server."));
 }
 
 getActivity();
 
-function postActivity(id) {
-    console.log(apiURL)
+function postActivity(id,msg) {
     axios
         .post(apiURL + "activities", {
             id: id,
@@ -1588,12 +1583,12 @@ function postActivity(id) {
             weekStart: actList[id]["weekStart"],
         })
         .then((response) => {
-            console.log(response);
+            showAlert(msg);
         })
-        .catch((error) => console.log(error));
+        .catch((error) => showAlert("Error inserting data on the server."));
 }
 
-function putActivity(id) {
+function putActivity(id,msg) {
     let arg = {
         id: id,
         title: actList[id]["title"],
@@ -1609,9 +1604,9 @@ function putActivity(id) {
     axios
         .put(apiURL + "activities/" + id, arg)
         .then((response) => {
-            response.data;
+            showAlert(msg);
         })
-        .catch((error) => console.log(error));
+        .catch((error) => showAlert('Error inserting data on the server.'));
 }
 
 function deleteActivity(id) {
@@ -1623,14 +1618,11 @@ function deleteActivity(id) {
         }else if(projList[prop]["activities"].includes('"'+id+'"'))
         removeItemOnce(projList[prop]["activities"], '"'+id+'"');
             putProject(prop);
-    }
-
-    document.location.reload();
-
+    }    
     axios
         .delete(apiURL + "activities/" + id)
-        .then((response) => console.log(response.data))
-        .catch((error) => console.log(error));
+        .then((response) => document.location.reload())
+        .catch((error) => showAlert("Error deleting data on the server."));
 }
 
 //Tags
@@ -1642,7 +1634,7 @@ function getTag() {
             const data = response.data.data;
             recreateTags(data);
         })
-        .catch((error) => console.log(error));
+        .catch((error) => showAlert("Error getting data from server."));
 }
 
 getTag();

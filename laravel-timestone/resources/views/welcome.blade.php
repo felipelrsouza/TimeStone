@@ -7,7 +7,9 @@
         <p>{{session('msg')}}</p>
         @endif
 
-        <div class="main-content container align-items-center pt-5">
+        <div class="main-content container align-items-center pt-4">
+          <div onclick="testealerta()">Mostrar alerta</div>
+
           <h6>Start tracking a new activity:</h6>
 
           <!-- Activity menu  -->
@@ -140,7 +142,7 @@
                   <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body text-center">
-                  <input type="time" name="auto-stop-input" id="auto-stop-time" value="00:00:00">
+                  <input type="time" name="auto-stop-input" id="auto-stop-time" value="23:59:00">
                 </div>
                 <div class="modal-footer">
                   <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
@@ -149,6 +151,11 @@
               </div>
             </div>
           </div>
+
+        <!-- Alert message  -->
+        <div id="alert" class="alert hidden-alert alert-primary" role="alert">
+            This is a primary alert with <a href="#" class="alert-link">an example link</a>. Give it a click if you like.
+        </div>
 
           <br />
 
