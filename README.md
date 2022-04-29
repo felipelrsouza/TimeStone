@@ -4,7 +4,7 @@ Um simples controle de tempo de atividades. Feito com HTML, CSS, JS e Laravel (P
 Em desenvolvimento.
 
 Problemas conhecidos: 
-  - Alteração de data de atividade temporariamente travada devido mudanças em como as datas são utilizadas.
+  - Alteração de hora em atividade com data alterada está temporariamente travada devido mudanças em como as datas são utilizadas.
   - Melhorar documentação;
   - Correções para atividades que acontecem em diferentes GMTs cada.
 
