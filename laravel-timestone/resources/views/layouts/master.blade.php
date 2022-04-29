@@ -23,23 +23,23 @@
 <body>
   <div class="header container-fluid">
     <div class="row align-items-center">
-      <div class="logo col-2 text-center text-nowrap"><a href="/">TimeSTONE</a></div>
+      <div class="logo col-2 text-center text-nowrap"><a href="<?php echo URL::to('/'); ?>">TimeSTONE</a></div>
       <div class="tools col-8 text-center">
         <ul>
           <li>
-            <a href="/">
+            <a href="<?php echo URL::to('/'); ?>">
               <i class="fa-solid fa-clock"></i>
               <div class="tools-i-title">Time Tracker</div>
             </a>
           </li>
           <li>
-            <a href="/tags">
+            <a href="<?php echo URL::to('tags'); ?>">
             <i class="fa-solid fa-tag"></i>
               <div class="tools-i-title">Tags</div>
             </a>
           </li>
           <li>
-            <a href="/projects">
+            <a href="<?php echo URL::to('projects'); ?>">
               <i class="fa-solid fa-newspaper"></i>
               <div class="tools-i-title"> Projects</div>
             </a>

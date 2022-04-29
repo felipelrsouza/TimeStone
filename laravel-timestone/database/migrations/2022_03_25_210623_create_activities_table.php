@@ -21,8 +21,6 @@ class CreateActivitiesTable extends Migration
             $table->string('autoStop');
             $table->boolean('isClosed');
             $table->text('timeList');
-            $table->string('actDate');
-            $table->string('weekStart');
             $table->string('user')->nullable();
             $table->timestamps();
         });
