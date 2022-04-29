@@ -9,6 +9,24 @@ a{
     text-decoration: none;
 }
 
+.alert{
+    position: fixed;
+    bottom: 0; 
+    right: 1rem;
+}
+
+.visible-alert{
+    visibility: visible;
+    opacity: 1;
+    transition: opacity 0.1s linear;
+}
+
+.hidden-alert{
+    visibility: hidden;
+    opacity: 0;
+    transition: visibility 0s 0.1s, opacity 0.1s linear;
+  }
+
 .activity-row{
     margin-bottom: 0.2rem;
 }

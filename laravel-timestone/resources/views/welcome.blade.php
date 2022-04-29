@@ -7,7 +7,9 @@
         <p>{{session('msg')}}</p>
         @endif
 
-        <div class="main-content container align-items-center pt-5">
+        <div class="main-content container align-items-center pt-4">
+          <div onclick="testealerta()">Mostrar alerta</div>
+
           <h6>Start tracking a new activity:</h6>
 
           <!-- Activity menu  -->
@@ -27,8 +29,6 @@
             <button data-type="update-id" class="act-id-button btn btn-outline-dark" onclick="actionManager(this)" type="button">
               <i class="fa-solid fa-arrows-rotate"></i>
             </button>
-
-
 
             <button data-type="project" class="project btn btn-outline-dark" data-bs-toggle="dropdown" aria-expanded="false" type="button">
               <i class="fa-solid fa-newspaper"></i> Projects
@@ -54,11 +54,12 @@
                 {{$tags -> title}}
               </div>
               @endforeach
+              <div class="dropdown-divider"></div>
               <div class="menu-item"><a href="/tags"><i class="fa-solid fa-arrow-up-right-from-square"></i> Create new tag </a></div>
             </ul>
 
-            <button data-type="billable" onclick="actionManager(this)" class="billable btn btn-outline-dark" type="button">
-              <i class="fa-solid fa-dollar-sign"></i> Billable
+            <button data-type="auto-stop" data-action="open-modal" onclick="actionManager(this)" data-bs-toggle="modal" data-bs-target="#auto-stop-modal" class="auto-stop btn btn-outline-dark" type="button">
+              <i class="fa-solid fa-stopwatch"></i> Auto
             </button>
 
             <div data-type="timer" class="timer btn btn-outline-dark">
@@ -132,6 +133,30 @@
             </button>
           </div>
 
+          <!-- Modal -->
+          <div class="modal fade" id="auto-stop-modal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+            <div class="modal-dialog">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <h5 class="modal-title" id="exampleModalLabel">Stop this timer automatically at</h5>
+                  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body text-center">
+                  <input type="time" name="auto-stop-input" id="auto-stop-time" value="23:59:00">
+                </div>
+                <div class="modal-footer">
+                  <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                  <button type="button" onclick="actionManager(this)" data-type="auto-stop" data-action="new-auto-stop" data-bs-dismiss="modal" act-id="id" class="btn btn-primary">Save changes</button>
+                </div>
+              </div>
+            </div>
+          </div>
+
+        <!-- Alert message  -->
+        <div id="alert" class="alert hidden-alert alert-primary" role="alert">
+            This is a primary alert with <a href="#" class="alert-link">an example link</a>. Give it a click if you like.
+        </div>
+
           <br />
 
           <div id="resume-table" class="resume-table">
@@ -144,12 +169,13 @@
         <!-- Tracker Page JS -->
         
         <script>
-          
-          const apiURL ='<?php echo URL::to('/'); ?>'+'/api/';
+
+          const apiURL = '<?php echo URL::to('/'); ?>' + '/api/';
+
           let serverTime = '<?php echo gmdate("Y-m-d\TH:i:s\Z") ?>';
 
         </script>
-        
+
         <script src="<?php echo URL::to('/'); ?>/js/tracker_script.js"></script>
 
         @endsection
