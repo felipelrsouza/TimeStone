@@ -51,6 +51,16 @@ function autoCloseActivity(id, delay){
       }, delay)
 }
 
+function zeroPad(num, places) {
+    var zero = places - num.toString().length + 1;
+    return Array(+(zero > 0 && zero)).join("0") + num;
+  }
+
+function formatDate(date){
+    string = date.getFullYear()+'-'+zeroPad(date.getMonth()+1,2)+'-'+zeroPad(date.getDate(),2)
+    return string
+}
+
 function getTimeZone(time){
     let gmtHours = parseInt(time.toTimeString().slice(13,15)) // Horas
     let gmtMinutes = parseInt(time.toTimeString().slice(15,17)) // minutos
@@ -225,8 +235,6 @@ function createActivity(id) {
         autoStop: "23:59:00"+userTime.toTimeString().slice(8,17),
         timeList: [date.toISOString()],
         isClosed: 0,
-        actDate: date.toISOString(),
-        weekStart: subtractDays(date.getDay(), date).toISOString(),
     };
 }
 
@@ -465,6 +473,7 @@ function timersManager() {
     stopPassiveUpdate = 0;
 
     for (var prop in actList) {
+        let actDate = new Date(actList[prop]["timeList"][0])
         if (actList[prop]["timeList"].length % 2) {
             // Está ativo
 
@@ -479,7 +488,7 @@ function timersManager() {
             }
         }
 
-        let idActDate = actList[prop]["actDate"].slice(0, 10);
+        let idActDate = formatDate(actDate)
 
         if (!(idActDate in activeDailyTimers)) {
             activeDailyTimers[idActDate] = [];
@@ -489,7 +498,9 @@ function timersManager() {
                 activeDailyTimers[idActDate].push(prop);
             }
         }
-        let idWeekStart = actList[prop]["weekStart"].slice(0, 10);
+
+        let weekStart = subtractDays(actDate.getDay(), actDate)
+        let idWeekStart = formatDate(weekStart)
 
         if (!(idWeekStart in activeWeeklyTimers)) {
             activeWeeklyTimers[idWeekStart] = [];
@@ -516,11 +527,8 @@ function changeSubactTime(id, arg) {
 
     //Current sub-activity time
 
-    let actDateGMT = getTimeZone(new Date(actList[id]['timeList'][0]))
-
-    let actDate = parseInt(actList[id]["timeList"][0].slice(8, 10)); //dia
-    let actMonth = parseInt(actList[id]["timeList"][0].slice(5, 7)) - 1; //mes
-    let actYear = parseInt(actList[id]["timeList"][0].slice(0, 4)); //ano
+    let actDate = new Date(actList[id]["timeList"][0])
+    let actDateGMT = getTimeZone(actDate)  
 
     let userStartTime =
         arg.parentNode.getElementsByClassName("start-time")[0].value;
@@ -531,9 +539,9 @@ function changeSubactTime(id, arg) {
 
     let startDateTime = new Date(
         Date.UTC(
-            actYear + timeCorrector[0],
-            actMonth + timeCorrector[1],
-            actDate + timeCorrector[2],
+            actDate.getUTCFullYear() + timeCorrector[0],
+            actDate.getUTCMonth() + timeCorrector[1],
+            actDate.getUTCDate() + timeCorrector[2],
             startHours + timeCorrector[3],
             startMinutes + timeCorrector[4] - actDateGMT,
             startSeconds + timeCorrector[5]
@@ -542,45 +550,55 @@ function changeSubactTime(id, arg) {
 
     let userEndTime =
         arg.parentNode.getElementsByClassName("end-time")[0].value;
+        
+        let endDateTime
 
+   if(userEndTime.includes(':')){
     let endHours = parseInt(userEndTime.slice(0, 2)); //hours
     let endMinutes = parseInt(userEndTime.slice(3, 5)); //minutes
     let endSeconds = parseInt(userEndTime.slice(6, 8)); //seconds
+    
 
-    let endDateTime = new Date(
+    endDateTime = new Date(
         Date.UTC(
-            actYear + timeCorrector[0],
-            actMonth + timeCorrector[1],
-            actDate + timeCorrector[2],
+            actDate.getUTCFullYear() + timeCorrector[0],
+            actDate.getUTCMonth() + timeCorrector[1],
+            actDate.getUTCDate() + timeCorrector[2],
             endHours + timeCorrector[3],
             endMinutes + timeCorrector[4] - actDateGMT,
             endSeconds + timeCorrector[5]
         )
-    );    
+    );  
+   }else{
+        endDateTime = null
+   } 
 
     let actDateLimit = new Date(actList[id]["timeList"][0])        
     actDateLimit.setHours(actList[id]["autoStop"].slice(0,2)) //activity limit hour
     actDateLimit.setMinutes(parseInt(actList[id]["autoStop"].slice(3,5))) //activity limit minutes
     actDateLimit.setSeconds(actList[id]["autoStop"].slice(6,8)) //activity limit seconds
 
-    if (startDateTime > endDateTime) {
+    if (startDateTime > endDateTime && endDateTime !== null) {
         showAlert("Error! End time is greater than start time.");
         return
-    } else if (startDateTime > actDateLimit || endDateTime > actDateLimit) {
+    } else if (startDateTime > actDateLimit || (endDateTime > actDateLimit && endDateTime !== null)) {
         showAlert("Error! Time is past activity limit.");
         return
-    } else if (startDateTime > nowTime || endDateTime > nowTime) {
+    } else if (startDateTime > nowTime || (endDateTime > nowTime && endDateTime !== null)) {
         showAlert("Error! Time is in the future.");
         return
     } else {
-        actList[id]["timeList"][startTimeIndex] = startDateTime;
+        actList[id]["timeList"][startTimeIndex] = startDateTime.toISOString();
         if ([endTimeIndex] in actList[id]["timeList"]) {
-            actList[id]["timeList"][endTimeIndex] = endDateTime;
+            actList[id]["timeList"][endTimeIndex] = endDateTime.toISOString();
         } else {
-            actList[id]["timeList"].push(endDateTime);
+            if(endDateTime !== null){
+            actList[id]["timeList"].push(endDateTime.toISOString());
+            }
         }
         putActivity(id, 'Done.');
-        iconUpdate(id);
+        timersManager()
+        iconUpdate(id);        
     }
 }
 
@@ -654,13 +672,13 @@ function activityManager(id, arg) {
 let currentId = 0;
 
 function createRow(id) {
-    date = new Date(actList[id]["actDate"]);
+    date = new Date(actList[id]["timeList"][0]);
 
     createDateTitleResume(id);
 
     let newRow = document.getElementById("activity-row-id").innerHTML;
     let actTable = document.getElementById(
-        "date-title-" + actList[id]["actDate"].slice(0, 10)
+        "date-title-" + actList[id]["timeList"][0].slice(0, 10)
     );
 
     actTable.insertAdjacentHTML(
@@ -803,7 +821,7 @@ function createSubRow(id) {
                             newCalendar +
                             "</div>"
                     );
-                    let activityDate = actList[id]["actDate"].slice(0, 10);
+                    let activityDate = actList[id]["timeList"][0].slice(0, 10);
                     document
                         .getElementById("calendar-act-" + id)
                         .getElementsByClassName("manual-date")[0]
@@ -878,7 +896,7 @@ function createSubRow(id) {
                             newCalendar +
                             "</div>"
                     );
-                    let activityDate = actList[id]["actDate"].slice(0, 10);
+                    let activityDate = actList[id]["timeList"][0].slice(0, 10);
                     document
                         .getElementById("calendar-act-" + id)
                         .getElementsByClassName("manual-date")[0]
@@ -891,11 +909,12 @@ function createSubRow(id) {
 
 //Create title for resume (week)
 function createWeekTitleResume(id) {
-    let weekStart = new Date(actList[id]["weekStart"]);
+    let actDate = new Date(actList[id]['timeList'][0])
+    let weekStart = subtractDays(actDate.getDay(), actDate)
     let weekEnd = addDays(6, weekStart);
     if (
         document.getElementById(
-            "week-title-" + actList[id]["weekStart"].slice(0, 10)
+            "week-title-" + formatDate(weekStart).slice(0, 10)
         ) == null
     ) {
         document
@@ -903,7 +922,7 @@ function createWeekTitleResume(id) {
             .insertAdjacentHTML(
                 "afterbegin",
                 '<div id="week-title-' +
-                    actList[id]["weekStart"].slice(0, 10) +
+                formatDate(weekStart).slice(0, 10) +
                     '" class="resume-week-title d-flex justify-content-between align-middle"><div>Week of ' +
                     monthNames[weekStart.getMonth()] +
                     " " +
@@ -915,7 +934,7 @@ function createWeekTitleResume(id) {
                     ", " +
                     weekStart.getFullYear() +
                     '.</div><div id="week-timer-' +
-                    actList[id]["weekStart"].slice(0, 10) +
+                    formatDate(weekStart).slice(0, 10) +
                     '">Total of this week: <span class="timer"> 00:00:00</span></div></div>'
             );
     }
@@ -925,23 +944,23 @@ function createWeekTitleResume(id) {
 function createDateTitleResume(id) {
     createWeekTitleResume(id);
 
-    let actDate = new Date(actList[id]["actDate"]);
+    let actDate = new Date(actList[id]["timeList"][0]);
 
     if (
         document.getElementById(
-            "date-title-" + actList[id]["actDate"].slice(0, 10)
+            "date-title-" + actList[id]["timeList"][0].slice(0, 10)
         ) == null
     ) {
-        let weekStart = new Date(actList[id]["weekStart"]);
+        let weekStart = subtractDays(actDate.getDay(), actDate)
 
         document
             .getElementById(
-                "week-title-" + actList[id]["weekStart"].slice(0, 10)
+                "week-title-" + formatDate(weekStart)
             )
             .insertAdjacentHTML(
                 "afterend",
                 '<div id="date-title-' +
-                    actList[id]["actDate"].slice(0, 10) +
+                    actList[id]["timeList"][0].slice(0, 10) +
                     '" class="resume-day-title d-flex justify-content-between"><div>' +
                     dayNames[actDate.getDay()] +
                     ", " +
@@ -949,7 +968,7 @@ function createDateTitleResume(id) {
                     " " +
                     actDate.getDate() +
                     ' - <span class="timer-productive"></span><span class="first-of-week d-none"> - <i class="fa-solid fa-award"></i> 1st of week</span></div><div id="date-timer-' +
-                    actList[id]["actDate"].slice(0, 10) +
+                    actList[id]["timeList"][0].slice(0, 10) +
                     '">  Total: <span class="timer"> 00:00:00</span></div></div>'
             );
     }
@@ -1158,7 +1177,7 @@ function actionManager(arg) {
             break;
 
         case arg.getAttribute("data-type").includes("update-calendar"): //Updates the date of an activity
-            let today = getNewDate();
+            let nowTime = getNewDate();
             let userInput = document
                 .getElementById("calendar-act-" + id)
                 .getElementsByClassName("manual-date")[0].value;
@@ -1167,26 +1186,39 @@ function actionManager(arg) {
             let userInputMonth = parseInt(userInput.slice(5, 7)) - 1; //Month
             let userInputYear = parseInt(userInput.slice(0, 4)); //Year
 
-            let userDate = new Date(
-                Date.UTC(
-                    userInputYear + timeCorrector[0],
-                    userInputMonth + timeCorrector[1],
-                    userInputDate + timeCorrector[2],
-                    1 + timeCorrector[3],
-                    0 + timeCorrector[4],
-                    0 + timeCorrector[5]
-                )
-            );
+            let actDate = new Date(actList[id]["timeList"][0]);
+            let actDateGMT = getTimeZone(actDate)
 
-            let userWeekStart = subtractDays(userDate.getDay(), userDate);
+            let lastActDate = new Date(actList[id]['timeList'][actList[id]['timeList'].length -1])
+            let newLastActDate = new Date(Date.UTC(
+                userInputYear + timeCorrector[0],
+                userInputMonth + timeCorrector[1],
+                userInputDate + timeCorrector[2],
+                lastActDate.getHours() + timeCorrector[3],
+                lastActDate.getMinutes() + timeCorrector[4] - actDateGMT,
+                lastActDate.getSeconds() + timeCorrector[5]
+            ))
 
-            if (userDate > today) {
+            if (newLastActDate > nowTime) {
                 showAlert("Error! Date is in the future.");
             } else {
-                actList[id]["actDate"] = userDate.toISOString();
+
+                for (let date in actList[id]['timeList']) {
+
+                    let oldDate = new Date(actList[id]['timeList'][date])
+                    
+                    actList[id]['timeList'][date] = (new Date(Date.UTC(
+                        userInputYear + timeCorrector[0],
+                        userInputMonth + timeCorrector[1],
+                        userInputDate + timeCorrector[2],
+                        oldDate.getHours() + timeCorrector[3],
+                        oldDate.getMinutes() + timeCorrector[4] - actDateGMT,
+                        oldDate.getSeconds() + timeCorrector[5]
+                    ))).toISOString()
+                }
+                actDate = new Date(actList[id]["timeList"][0]);
+                let userWeekStart = subtractDays(actDate.getDay(), actDate);
                 actList[id]["weekStart"] = userWeekStart.toISOString();
-                timersManager();
-                iconUpdate(id);
                 putActivity(id);
                 document.location.reload();
             }
@@ -1229,18 +1261,15 @@ let stopPassiveUpdate = 0;
         for (let i = 0; i < actList[itemId]["timeList"].length - 1; i = i + 2) {
             let startDate = new Date(actList[itemId]["timeList"][i]);
             let endDate = new Date(actList[itemId]["timeList"][i + 1]);
-            let actDate = actList[itemId]["actDate"];
-            let actDateDate = parseInt(actDate.slice(8, 10)); //Date
-            let actDateMonth = parseInt(actDate.slice(5, 7)) - 1; //Month
-            let actDateYear = parseInt(actDate.slice(0, 4)); //Year
+            let actDate = new Date(actList[itemId]['timeList'][0]);
 
-            startDate.setFullYear(actDateYear);
-            startDate.setDate(actDateDate);
-            startDate.setMonth(actDateMonth);
+            startDate.setFullYear(actDate.getUTCFullYear());
+            startDate.setDate(actDate.getUTCDate());
+            startDate.setMonth(actDate.getUTCMonth()-1);
 
-            endDate.setFullYear(actDateYear);
-            endDate.setDate(actDateDate);
-            endDate.setMonth(actDateMonth);
+            endDate.setFullYear(actDate.getUTCFullYear());
+            endDate.setDate(actDate.getUTCDate());
+            endDate.setMonth(actDate.getUTCMonth()-1);
 
             sum = sum + Math.abs(endDate - startDate) / 1000;
         }
@@ -1279,18 +1308,15 @@ let stopPassiveUpdate = 0;
                 ) {
                     let startDate = new Date(actList[itemId]["timeList"][i]);
                     let endDate = new Date(actList[itemId]["timeList"][i + 1]);
-                    let actDate = actList[itemId]["actDate"];
-                    let actDateDate = parseInt(actDate.slice(8, 10)); //Date
-                    let actDateMonth = parseInt(actDate.slice(5, 7)) - 1; //Month
-                    let actDateYear = parseInt(actDate.slice(0, 4)); //Year
+                    let actDate = new Date(actList[itemId]["timeList"][0]);
 
-                    startDate.setFullYear(actDateYear);
-                    startDate.setDate(actDateDate);
-                    startDate.setMonth(actDateMonth);
+                    startDate.setFullYear(actDate.getUTCFullYear());
+                    startDate.setDate(actDate.getUTCDate());
+                    startDate.setMonth(actDate.getUTCMonth()-1);
 
-                    endDate.setFullYear(actDateYear);
-                    endDate.setDate(actDateDate);
-                    endDate.setMonth(actDateMonth);
+                    endDate.setFullYear(actDate.getUTCFullYear());
+                    endDate.setDate(actDate.getUTCDate());
+                    endDate.setMonth(actDate.getUTCMonth()-1);
 
                     sum = sum + Math.abs(endDate - startDate) / 1000;
                 }
@@ -1316,6 +1342,7 @@ let stopPassiveUpdate = 0;
 
         for (let i = 0; i < activeDailyTimers[datestring].length; i++) {
             let itemId = activeDailyTimers[datestring][i];
+            
             actSum = timestrToSec(
                 document
                     .getElementById("activity-row-" + itemId)
@@ -1330,15 +1357,14 @@ let stopPassiveUpdate = 0;
                 oldLongerTimerId = longerTimerId;
             }
             longerTimer = sum;
-            longerTimerId = actList[activeDailyTimers[datestring][0]][
-                "actDate"
-            ].slice(0, 10);
+            longerTimerId = actList[activeDailyTimers[datestring][0]]["timeList"][0].slice(0, 10);            
         }
 
         dayTimerId = getKeyByValue(
             activeDailyTimers,
             activeDailyTimers[datestring]
         );
+        
         document
             .getElementById("date-title-" + dayTimerId)
             .getElementsByClassName("timer")[0].innerText = formatTime(
@@ -1431,19 +1457,17 @@ function recreateActivities(data) {
             autoStop: data[prop]["autoStop"],
             isClosed: data[prop]["isClosed"],
             timeList: JSON.parse(data[prop]["timeList"]),
-            actDate: data[prop]["actDate"],
-            weekStart: data[prop]["weekStart"],
         };
 
 
         //Activity limit time
         let actDate = new Date(actList[data[prop]["id"]]["timeList"][0]);
-        let actDateGMT = getTimeZone(actDate)
+        let actDateTimeZone = getTimeZone(actDate)
 
 
         let actDateLimit = new Date(actList[data[prop]["id"]]["timeList"][0])        
         actDateLimit.setHours(actList[data[prop]["id"]]["autoStop"].slice(0,2)) //activity limit hour
-        actDateLimit.setMinutes(parseInt(actList[data[prop]["id"]]["autoStop"].slice(3,5)) - actDateGMT) //activity limit minutes
+        actDateLimit.setMinutes(parseInt(actList[data[prop]["id"]]["autoStop"].slice(3,5)) - (actDateTimeZone - userTimeZone)) //activity limit minutes
         actDateLimit.setSeconds(actList[data[prop]["id"]]["autoStop"].slice(6,8)) //activity limit seconds
 
         //User time
@@ -1454,7 +1478,6 @@ function recreateActivities(data) {
         //Se atividade está pausada e aberta
         if (actList[data[prop]["id"]]["timeList"].length % 2 == 0 && actList[data[prop]["id"]]["isClosed"] == 0) {             
             if (nowTime >= actDateLimit) {  
-                
                 actList[data[prop]["id"]]["timeList"][actList[data[prop]["id"]]["timeList"].length - 1] = actDateLimit.toISOString();
                 closeActivity(data[prop]["id"]);
             }else{
@@ -1582,8 +1605,6 @@ function postActivity(id,msg) {
             autoStop: actList[id]["autoStop"],
             isClosed: actList[id]["isClosed"],
             timeList: JSON.stringify(actList[id]["timeList"]),
-            actDate: actList[id]["actDate"],
-            weekStart: actList[id]["weekStart"],
         })
         .then((response) => {
             showAlert(msg);
@@ -1600,8 +1621,6 @@ function putActivity(id,msg) {
         autoStop: actList[id]["autoStop"],
         isClosed: actList[id]["isClosed"],
         timeList: JSON.stringify(actList[id]["timeList"]),
-        actDate: actList[id]["actDate"],
-        weekStart: actList[id]["weekStart"],
     };
 
     axios

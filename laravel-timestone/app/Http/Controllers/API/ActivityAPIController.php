@@ -21,7 +21,7 @@ class ActivityAPIController extends Controller
      */
     public function index()
     {
-        return $this->activity::orderBy('actDate', 'asc')->simplePaginate(200);
+        return $this->activity::orderBy('timeList', 'asc')->simplePaginate(200);
     }
 
     /**

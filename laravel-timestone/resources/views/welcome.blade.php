@@ -8,8 +8,6 @@
         @endif
 
         <div class="main-content container align-items-center pt-4">
-          <div onclick="testealerta()">Mostrar alerta</div>
-
           <h6>Start tracking a new activity:</h6>
 
           <!-- Activity menu  -->
@@ -41,7 +39,7 @@
               </div>
               @endforeach
               <div class="dropdown-divider"></div>
-              <div class="menu-item"><a href="/projects"><i class="fa-solid fa-arrow-up-right-from-square"></i> Create new project </a></div>
+              <div class="menu-item"><a href="<?php echo URL::to('projects'); ?>"><i class="fa-solid fa-arrow-up-right-from-square"></i> Create new project </a></div>
             </ul>
 
             <button data-type="tags" class="tags btn btn-outline-dark" data-bs-toggle="dropdown" aria-expanded="false" type="button">
@@ -55,7 +53,7 @@
               </div>
               @endforeach
               <div class="dropdown-divider"></div>
-              <div class="menu-item"><a href="/tags"><i class="fa-solid fa-arrow-up-right-from-square"></i> Create new tag </a></div>
+              <div class="menu-item"><a href="<?php echo URL::to('tags'); ?>"><i class="fa-solid fa-arrow-up-right-from-square"></i> Create new tag </a></div>
             </ul>
 
             <button data-type="auto-stop" data-action="open-modal" onclick="actionManager(this)" data-bs-toggle="modal" data-bs-target="#auto-stop-modal" class="auto-stop btn btn-outline-dark" type="button">
