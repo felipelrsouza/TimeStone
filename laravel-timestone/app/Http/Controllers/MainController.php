@@ -10,25 +10,23 @@ use App\Models\Tag;
 
 class MainController extends Controller
 {
-    public function index(){
+    public function activityIndex(){
  
-        $activities = Activity::all();
         $projects = Project::all();
         $tags = Tag::all();
       
         return view('welcome',[
-            'activities' => $activities,
             'projects' => $projects,
             'tags' => $tags        
         ]);
     }
 
 
-    public function create(){
+    public function activityCreate(){
         return view('activities.create');
     }
 
-    public function store(Request $request){
+    public function activityStore(Request $request){
 
         $activity = new Activity;
 
@@ -41,5 +39,44 @@ class MainController extends Controller
 
      }
 
-}
+    public function projectIndex(){
+ 
+        $projects = Project::all();
+      
+        return view('/projects',['projects' => $projects]);
+    }
 
+    public function store(Request $request){
+
+        $project = new Project;
+
+        $project -> title = $request -> title;
+        $project -> description = $request -> description;
+
+        $project -> save();
+
+        return redirect('/projects');
+
+    }
+    
+     public function tagsIndex(){
+ 
+        $tags = Tag::all();
+      
+        return view('/tags',['tags' => $tags]);
+    }
+
+    public function tagStore(Request $request){
+
+        $tag = new Tag;
+
+        $tag -> title = $request -> title;
+        $tag -> activities = $request -> activities;
+
+        $tag -> save();
+
+        return redirect('/')->with('msg', 'Tag criada com sucesso!');
+
+     }
+
+}
