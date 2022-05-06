@@ -14,37 +14,16 @@ use Illuminate\Support\Facades\Route;
 */
 
 use App\Http\Controllers\MainController;
-use App\Http\Controllers\ProjectController;
-use App\Http\Controllers\TagController;
 
-Route::get('/', [MainController::class, 'index'] );
+Route::get('/', [MainController::class, 'activityIndex'] );
 
-Route::get('/projects', function () {
-
-    return view('projects');
+Route::controller(MainController::class)->group(function () {
+    Route::get('/projects', 'projectIndex');
+    Route::post('/projects', 'projectStore');
 });
 
-Route::get('/projects', [ProjectController::class, 'index'] );
-
-Route::post('/projects', [ProjectController::class, 'store']);
-
-
-Route::get('/tags', [TagController::class, 'index'] );
-
-Route::post('/tags', [TagController::class, 'store']);
-
-
-Route::get('/calendar', function () {
-
-    return view('calendar');
+Route::controller(MainController::class)->group(function () {
+    Route::get('/tags', 'tagsIndex');
+    Route::post('/tags', 'tagsStore');
 });
 
-Route::get('/dashboard', function () {
-
-    return view('dashboard');
-});
-
-Route::get('/reports', function () {
-
-    return view('reports');
-});
