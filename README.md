@@ -5,10 +5,10 @@ Em desenvolvimento.
 
 Problemas conhecidos: 
   - Melhorar documentação;
-  - Correções para atividades que acontecem em diferentes GMTs cada.
+  - Correções para atividades que acontecem em diferentes GMTs cada;
+  - Inconsistência na criação de novas atividades.
 
 RoadMap:
-  - Inserção de sistema de login;
   - Responsividade;
   - Implementação completa de tags;
 
