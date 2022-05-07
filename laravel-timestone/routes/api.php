@@ -18,10 +18,11 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
     return $request->user();
 });
 
-Route::apiResource('/projects', \App\Http\Controllers\API\ProjectAPIController::class)->middleware('auth.basic');
+Route::middleware(['auth:sanctum', config('jetstream.auth_session'), 'verified'])->group(function () {
 
-Route::apiResource('/activities', \App\Http\Controllers\API\ActivityAPIController::class)->middleware('auth.basic');
-
-Route::apiResource('/tags', \App\Http\Controllers\API\TagAPIController::class)->middleware('auth.basic');
-
+Route::apiResource('/projects', \App\Http\Controllers\API\ProjectAPIController::class);
+Route::apiResource('/activities', \App\Http\Controllers\API\ActivityAPIController::class);
+Route::apiResource('/tags', \App\Http\Controllers\API\TagAPIController::class);
 Route::resource('/users', \App\Http\Controllers\API\UserController::class);
+
+});

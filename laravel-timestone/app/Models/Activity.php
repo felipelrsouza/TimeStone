@@ -9,6 +9,6 @@ class Activity extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['id', 'title', 'project', 'tags', 'autoStop', 'isClosed', 'timeList', 'user'];
+    protected $fillable = ['act_id', 'title', 'project', 'tags', 'autoStop', 'isClosed', 'timeList', 'user'];
 
 }
