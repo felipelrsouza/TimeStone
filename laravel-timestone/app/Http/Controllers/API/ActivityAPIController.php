@@ -5,6 +5,7 @@ namespace App\Http\Controllers\API;
 use Illuminate\Http\Request;
 use App\Models\Activity;
 use App\Http\Controllers\Controller;
+use Illuminate\Support\Facades\Auth;
 
 class ActivityAPIController extends Controller
 {
@@ -21,7 +22,12 @@ class ActivityAPIController extends Controller
      */
     public function index()
     {
-        return $this->activity::orderBy('timeList', 'asc')->simplePaginate(200);
+        $query = $this->activity
+            ->orderBy('timeList', 'asc')
+            ->where('user', '=', Auth::user()->id);
+        $response = $query->get();
+
+        return $response;
     }
 
     /**
@@ -32,7 +38,18 @@ class ActivityAPIController extends Controller
      */
     public function store(Request $request)
     {
-        return $this->activity->create($request->all());
+        //$this->activity->create($request->all());
+        return $this->activity->create([
+            'act_id' => $request->act_id,
+            'title' => $request->title,
+            'project' => $request->project,
+            'tags' => $request->tags,
+            'autoStop' => $request->autoStop,
+            'isClosed' => $request->isClosed,
+            'timeList' => $request->timeList,
+            'user' => Auth::user()->id
+        ]);
+
     }
 
     /**
@@ -43,7 +60,12 @@ class ActivityAPIController extends Controller
      */
     public function show(Activity $activity)
     {
-        return $activity;
+        $query = $this->activity;
+        $query->where('user', '=', Auth::user()->id);
+        $query->orderBy('timeList', 'asc');
+        $response = $query->get();
+
+        return 'Success.';
     }
 
     /**
@@ -55,7 +77,20 @@ class ActivityAPIController extends Controller
      */
     public function update(Request $request, Activity $activity)
     {
-        return $activity->update($request->all()); //Return true or false
+        // $query = $this->activity;
+        // $matchThese = ['user' => Auth::user()->id, 'act_id' => $request->id];
+        // $query->where($matchThese);
+        // return $query->update([
+        //     'act_id'   => $request->id,
+        //     'title'    => $request->title,
+        //     'project'  => $request->project,
+        //     'tags'     => $request->tags,
+        //     'autoStop' => $request->autoStop,
+        //     'isClosed' => $request->isClosed,
+        //     'timeList' => $request->timeList,
+        // ]);
+
+        return $activity->update($request->all());
     }
 
     /**
@@ -66,6 +101,8 @@ class ActivityAPIController extends Controller
      */
     public function destroy(Activity $activity)
     {
-        return $activity->delete();
+        $activity->delete();
+
+        return 'Success.';
     }
 }

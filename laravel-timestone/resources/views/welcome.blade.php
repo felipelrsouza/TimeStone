@@ -1,13 +1,9 @@
         @extends('layouts.master')
 
         @section('title', 'Tracker')
-        @section('content')
+         @section('content')
 
-        @if(session('msg'))
-        <p>{{session('msg')}}</p>
-        @endif
-
-        <div class="main-content container align-items-center pt-4">
+         <div class="main-content container align-items-center pt-4">
           <h6>Start tracking a new activity:</h6>
 
           <!-- Activity menu  -->
@@ -169,6 +165,7 @@
         <script>
           const apiURL = '<?php echo URL::to('/'); ?>' + '/api/';
           let serverTime = '<?php echo gmdate("Y-m-d\TH:i:s\Z") ?>';
+          const user = '<?php echo Auth::user()->name; ?>';
         </script>
 
         <script src="<?php echo URL::to('/'); ?>/js/tracker_script.js"></script>

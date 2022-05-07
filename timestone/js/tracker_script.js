@@ -236,6 +236,7 @@ function createActivity(id) {
         autoStop: "23:59:00"+userTime.toTimeString().slice(8,17),
         timeList: [date.toISOString()],
         isClosed: 0,
+        globalId: 99,
     };
 }
 
@@ -1040,8 +1041,7 @@ function actionManager(arg) {
                 showAlert("Error! ID already in use.");
             } else {
                 if (id in actList) {
-                    actList[newId] = actList[id];
-                    delete actList[id];
+                    actList[newId] = actList[id];                   
 
                     for (var prop in projList) {
                         if (projList[prop]["activities"].includes(id)) {
@@ -1050,8 +1050,8 @@ function actionManager(arg) {
                             putProject(prop);
                         }
                     }
-                    deleteActivity(id);
                     postActivity(newId,'Activity ID updated.');
+                    deleteActivity(id);                    
                 } else {
                     cache[id] = newId;
                 }
@@ -1446,72 +1446,75 @@ let stopPassiveUpdate = 0;
 function recreateActivities(data) {
     for (var prop in data) {
 
-        actList[data[prop]["id"]] = {
+        actList[data[prop]["act_id"]] = {
             title: data[prop]["title"],
             project: JSON.parse(data[prop]["project"]),
             tags: JSON.parse(data[prop]["tags"]),
             autoStop: data[prop]["autoStop"],
             isClosed: data[prop]["isClosed"],
             timeList: JSON.parse(data[prop]["timeList"]),
+            globalId: data[prop]["id"],
         };
 
         //Activity limit time
 
-        let actDate = new Date(actList[data[prop]["id"]]["timeList"][0]);
+        let actDate = new Date(actList[data[prop]["act_id"]]["timeList"][0]);
         let actDateTimeZone = getTimeZone(actDate)
 
-        let actDateLimit = new Date(actList[data[prop]["id"]]["timeList"][0])        
-        actDateLimit.setHours(actList[data[prop]["id"]]["autoStop"].slice(0,2)) //activity limit hour
-        actDateLimit.setMinutes(parseInt(actList[data[prop]["id"]]["autoStop"].slice(3,5)) - (actDateTimeZone - userTimeZone)) //activity limit minutes
-        actDateLimit.setSeconds(actList[data[prop]["id"]]["autoStop"].slice(6,8)) //activity limit seconds
+        let actDateLimit = new Date(actList[data[prop]["act_id"]]["timeList"][0])        
+        actDateLimit.setHours(actList[data[prop]["act_id"]]["autoStop"].slice(0,2)) //activity limit hour
+        actDateLimit.setMinutes(parseInt(actList[data[prop]["act_id"]]["autoStop"].slice(3,5)) - (actDateTimeZone - userTimeZone)) //activity limit minutes
+        actDateLimit.setSeconds(actList[data[prop]["act_id"]]["autoStop"].slice(6,8)) //activity limit seconds
 
         //User time
         let nowTime = getNewDate();
 
-        createRow(data[prop]["id"], actDate);
-        createSubRow(data[prop]["id"]);
+        createRow(data[prop]["act_id"], actDate);
+        createSubRow(data[prop]["act_id"]);
 
         //Se atividade está pausada e aberta
-        if (actList[data[prop]["id"]]["timeList"].length % 2 == 0 && actList[data[prop]["id"]]["isClosed"] == 0) {             
+        if (actList[data[prop]["act_id"]]["timeList"].length % 2 == 0 && actList[data[prop]["act_id"]]["isClosed"] == 0) {             
             if (nowTime >= actDateLimit) {  
-                actList[data[prop]["id"]]["timeList"][actList[data[prop]["id"]]["timeList"].length - 1] = actDateLimit.toISOString();
-                closeActivity(data[prop]["id"]);
+                actList[data[prop]["act_id"]]["timeList"][actList[data[prop]["act_id"]]["timeList"].length - 1] = actDateLimit.toISOString();
+                closeActivity(data[prop]["act_id"]);
             }else{
-                autoCloseActivity(data[prop]["id"], actDateLimit - nowTime)
+                autoCloseActivity(data[prop]["act_id"], actDateLimit - nowTime)
             }                            
         }
 
         //Se atividade está ativa
-        if (actList[data[prop]["id"]]["timeList"].length % 2) { 
+        if (actList[data[prop]["act_id"]]["timeList"].length % 2) { 
             if (nowTime >= actDateLimit) {
-                actList[data[prop]["id"]]["timeList"].push(actDateLimit);
-                closeActivity(data[prop]["id"]);
+                actList[data[prop]["act_id"]]["timeList"].push(actDateLimit);
+                closeActivity(data[prop]["act_id"]);
             } else{
-                autoCloseActivity(data[prop]["id"], actDateLimit - nowTime)
+                autoCloseActivity(data[prop]["act_id"], actDateLimit - nowTime)
             }
         }
         
-        if (data[prop]["id"] >= currentId) {
-            currentId = parseInt(data[prop]["id"]) + 1;
+        if (data[prop]["act_id"] >= currentId) {
+            currentId = parseInt(data[prop]["act_id"]) + 1;
             document
                 .getElementById("activity-row-id")
                 .getElementsByClassName("act-id-input")[0].value =
                 currentId;
         }
+
+        console.log(actList)
     }    
 }
 
 function recreateProjects(data) {
     for (let prop in data) {
-        new newProject(data[prop]["id"]);
+        new newProject(data[prop]["proj_id"]);
 
-        projList[data[prop]["id"]] = {
+        projList[data[prop]["proj_id"]] = {
             title: data[prop]["title"],
             description: data[prop]["description"],
             activities: JSON.parse(data[prop]["activities"]),
         };
 
-        let idProject = data[prop]["id"];
+        let idProject = data[prop]["proj_id"];
 
         if (projList[idProject]["activities"] == null) {
             projList[idProject]["activities"] = [];
@@ -1540,7 +1543,7 @@ function recreateProjects(data) {
 
 function recreateTags(data) {
     for (let prop in data) {
-        tagList[data[prop]["id"]] = {
+        tagList[data[prop]["tag_id"]] = {
             id: id,
             title: data[prop]["title"],
             activities: data[prop]["activities"],
@@ -1583,7 +1586,7 @@ function getActivity() {
     axios
         .get(apiURL + "activities")
         .then((response) => {
-            let data = response.data.data;
+            let data = response.data;
             recreateActivities(data);
         })
         .catch((error) => showAlert("Error getting data from server."));
@@ -1594,7 +1597,7 @@ getActivity();
 function postActivity(id,msg) {
     axios
         .post(apiURL + "activities", {
-            id: id,
+            act_id: id,
             title: actList[id]["title"],
             project: JSON.stringify(actList[id]["project"]),
             tags: JSON.stringify(actList[id]["tags"]),
@@ -1603,14 +1606,17 @@ function postActivity(id,msg) {
             timeList: JSON.stringify(actList[id]["timeList"]),
         })
         .then((response) => {
+            actList[id]['globalId'] = response.data.id
             showAlert(msg);
         })
         .catch((error) => showAlert("Error inserting data on the server."));
 }
 
 function putActivity(id,msg) {
+    globalId = actList[id]['globalId']
     let arg = {
-        id: id,
+        id: globalId,
+        act_id: id,
         title: actList[id]["title"],
         project: JSON.stringify(actList[id]["project"]),
         tags: JSON.stringify(actList[id]["tags"]),
@@ -1620,14 +1626,17 @@ function putActivity(id,msg) {
     };
 
     axios
-        .put(apiURL + "activities/" + id, arg)
+        .put(apiURL + "activities/" + globalId, arg)
         .then((response) => {
+            console.log(response)
             showAlert(msg);
         })
-        .catch((error) => showAlert('Error inserting data on the server.'));
+        .catch((error) => console.log(error)); //showAlert('Error inserting data on the server.'));
 }
 
 function deleteActivity(id) {
+    console.log(actList)
+    globalId = actList[id]['globalId']
     delete actList[id];
     for (var prop in projList) {
         if (projList[prop]["activities"].includes(id)) {
@@ -1638,8 +1647,11 @@ function deleteActivity(id) {
             putProject(prop);
     }    
     axios
-        .delete(apiURL + "activities/" + id)
-        .then((response) => document.location.reload())
+        .delete(apiURL + "activities/" + globalId)
+        .then((response) => {
+            delete actList[id]
+            document.location.reload()
+        })
         .catch((error) => showAlert("Error deleting data on the server."));
 }
 

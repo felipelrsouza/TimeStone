@@ -15,15 +15,22 @@ use Illuminate\Support\Facades\Route;
 
 use App\Http\Controllers\MainController;
 
-Route::get('/', [MainController::class, 'activityIndex'] );
+Route::middleware([
+    'auth:sanctum',
+    config('jetstream.auth_session'),
+    'verified'
+])->group(function () {
+    Route::get('/dashboard', [MainController::class, 'activityIndex'])->name('dashboard');
 
-Route::controller(MainController::class)->group(function () {
-    Route::get('/projects', 'projectIndex');
-    Route::post('/projects', 'projectStore');
+    Route::get('/', [MainController::class, 'activityIndex']);
+
+    Route::controller(MainController::class)->group(function () {
+        Route::get('/projects', 'projectIndex');
+        Route::post('/projects', 'projectStore');
+    });
+
+    Route::controller(MainController::class)->group(function () {
+        Route::get('/tags', 'tagsIndex');
+        Route::post('/tags', 'tagsStore');
+    });
 });
-
-Route::controller(MainController::class)->group(function () {
-    Route::get('/tags', 'tagsIndex');
-    Route::post('/tags', 'tagsStore');
-});
-
