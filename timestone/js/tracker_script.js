@@ -1,5 +1,6 @@
 ///// DATE AND TIME FUNCTIONS ////
 let userTime = new Date()
+let userTimeZone = userTime.getTimezoneOffset()
 
 function showAlert(msg){
     if(msg == null){
@@ -86,7 +87,6 @@ let userTimeZone = getTimeZone(userTime)
   
 //To debug server time
 //let serverTime = (new Date((new Date()).setMinutes(userTime.getMinutes()+10))).toISOString()
-
 let trustedTime = 0
 let timeCorrector = new Array // 0 -> Year, 1 -> Month, 2 -> Date, 3 -> Hour, 4 -> Minutes, 5 -> Seconds.
 
@@ -99,7 +99,6 @@ if(Math.abs(new Date(serverTime) - userTime)<5000){ //Timer do usuário é confi
     timeCorrector[4] = 0 //Minutes
     timeCorrector[5] = 0 //Seconds
     trustedTime = 1
-    
 
 }else{ //Timer do usuário não é confiável
 
@@ -1247,6 +1246,10 @@ let stopPassiveUpdate = 0;
 
     setTimeout(updateTimers, 500); //Update every 0.5 second.
 
+    if(Object.keys(actList).length == 0){
+        return
+    }
+
     let nowTime = getNewDate();
 
     //Update activity timers
@@ -1444,6 +1447,7 @@ let stopPassiveUpdate = 0;
 })();
 
 function recreateActivities(data) {
+    currentId = 0;
     for (var prop in data) {
 
         actList[data[prop]["act_id"]] = {
@@ -1455,8 +1459,6 @@ function recreateActivities(data) {
             timeList: JSON.parse(data[prop]["timeList"]),
             globalId: data[prop]["id"],
         };
-
-        //Activity limit time
 
         let actDate = new Date(actList[data[prop]["act_id"]]["timeList"][0]);
         let actDateTimeZone = getTimeZone(actDate)

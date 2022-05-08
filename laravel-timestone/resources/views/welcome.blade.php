@@ -161,11 +161,15 @@
         <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
 
         <!-- Tracker Page JS -->
-
+        
         <script>
+
           const apiURL = '<?php echo URL::to('/'); ?>' + '/api/';
+
           let serverTime = '<?php echo gmdate("Y-m-d\TH:i:s\Z") ?>';
+
           const user = '<?php echo Auth::user()->name; ?>';
+
         </script>
 
         <script src="<?php echo URL::to('/'); ?>/js/tracker_script.js"></script>
