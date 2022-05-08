@@ -14,11 +14,11 @@
         <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700&display=swap">
 
         <!-- Styles -->
-        <link rel="stylesheet" href="{{ mix('css/app.css') }}">
+        <link rel="stylesheet" href="<?php echo URL::to('/'); ?>/css/app.css">
         <link rel="stylesheet" href="<?php echo URL::to('/'); ?>/css/style.css" />
 
         <!-- Scripts -->
-        <script src="{{ mix('js/app.js') }}" defer></script>
+        <script src="<?php echo URL::to('/'); ?>/js/app.js" defer></script>
     </head>
     <body>
         <div class="font-sans text-gray-900 antialiased">
