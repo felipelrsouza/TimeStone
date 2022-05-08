@@ -20,9 +20,9 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
 
 Route::middleware(['auth:sanctum', config('jetstream.auth_session'), 'verified'])->group(function () {
 
-Route::apiResource('/projects', \App\Http\Controllers\API\ProjectAPIController::class);
-Route::apiResource('/activities', \App\Http\Controllers\API\ActivityAPIController::class);
-Route::apiResource('/tags', \App\Http\Controllers\API\TagAPIController::class);
-Route::resource('/users', \App\Http\Controllers\API\UserController::class);
+    Route::apiResource('/projects', \App\Http\Controllers\API\ProjectAPIController::class);
+    Route::apiResource('/activities', \App\Http\Controllers\API\ActivityAPIController::class);
+    Route::apiResource('/tags', \App\Http\Controllers\API\TagAPIController::class);
+    Route::resource('/users', \App\Http\Controllers\API\UserController::class);
 
 });
