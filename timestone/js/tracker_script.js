@@ -1,6 +1,5 @@
 ///// DATE AND TIME FUNCTIONS ////
 let userTime = new Date()
-let userTimeZone = userTime.getTimezoneOffset()
 
 function showAlert(msg){
     if(msg == null){
@@ -1501,8 +1500,6 @@ function recreateActivities(data) {
                 .getElementsByClassName("act-id-input")[0].value =
                 currentId;
         }
-
-        console.log(actList)
     }    
 }
 
@@ -1591,7 +1588,7 @@ function getActivity() {
             let data = response.data;
             recreateActivities(data);
         })
-        .catch((error) => showAlert("Error getting data from server."));
+        .catch((error) => showAlert("Error getting data from server.") );
 }
 
 getActivity();
@@ -1630,14 +1627,12 @@ function putActivity(id,msg) {
     axios
         .put(apiURL + "activities/" + globalId, arg)
         .then((response) => {
-            console.log(response)
             showAlert(msg);
         })
-        .catch((error) => console.log(error)); //showAlert('Error inserting data on the server.'));
+        .catch((error) => showAlert('Error inserting data on the server.'));
 }
 
 function deleteActivity(id) {
-    console.log(actList)
     globalId = actList[id]['globalId']
     delete actList[id];
     for (var prop in projList) {
